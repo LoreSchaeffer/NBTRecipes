@@ -1,9 +1,7 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.*;
-import org.bukkit.Material;
-
-import java.lang.reflect.Type;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.SmokingRecipe;
 
 /**
  * BSD 3-Clause License
@@ -36,16 +34,23 @@ import java.lang.reflect.Type;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
-    @Override
-    public JsonElement serialize(Material material, Type type, JsonSerializationContext ctx) {
-        if (material == null) return null;
-        return new JsonPrimitive(material.getKey().toString());
+public class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
+
+    public SmokingRecipeWrapper() {
+        super(Type.SMOKING);
     }
 
     @Override
-    public Material deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-        if (!json.isJsonPrimitive()) return null;
-        return Material.matchMaterial(json.getAsString());
+    public SmokingRecipe toBukkit() {
+        if (experience == null || experience < 0) experience = 0f;
+        if (cookingTime == null || cookingTime < 0) cookingTime = 200;
+
+        return new SmokingRecipe(
+                namespacedKey,
+                result.toItemStack(),
+                new RecipeChoice.ExactChoice(input.toItemStack()),
+                experience,
+                cookingTime
+        );
     }
 }

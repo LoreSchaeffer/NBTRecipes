@@ -1,9 +1,8 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.*;
-import org.bukkit.Material;
-
-import java.lang.reflect.Type;
+import it.multicoredev.nbtr.model.Item;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.SmithingRecipe;
 
 /**
  * BSD 3-Clause License
@@ -36,16 +35,23 @@ import java.lang.reflect.Type;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
+public class SmithingRecipeWrapper extends RecipeWrapper {
+    private Item base;
+    private Item addition;
+    private Item output;
+
+    public SmithingRecipeWrapper() {
+        super(Type.SMITHING_RECIPE);
+    }
+
+
     @Override
-    public JsonElement serialize(Material material, Type type, JsonSerializationContext ctx) {
-        if (material == null) return null;
-        return new JsonPrimitive(material.getKey().toString());
+    public SmithingRecipe toBukkit() {
+        return new SmithingRecipe(namespacedKey, output.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
     }
 
     @Override
-    public Material deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-        if (!json.isJsonPrimitive()) return null;
-        return Material.matchMaterial(json.getAsString());
+    public boolean isValid() {
+        return base != null && base.isValid() && addition != null && addition.isValid() && output != null && output.isValid();
     }
 }

@@ -1,9 +1,9 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.*;
-import org.bukkit.Material;
+import it.multicoredev.nbtr.model.Item;
+import org.bukkit.inventory.ShapelessRecipe;
 
-import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * BSD 3-Clause License
@@ -36,16 +36,31 @@ import java.lang.reflect.Type;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
-    @Override
-    public JsonElement serialize(Material material, Type type, JsonSerializationContext ctx) {
-        if (material == null) return null;
-        return new JsonPrimitive(material.getKey().toString());
+public class ShapelessRecipeWrapper extends RecipeWrapper {
+    private List<Item> ingredients;
+    private Item result;
+
+    public ShapelessRecipeWrapper() {
+        super(Type.SHAPELESS);
     }
 
     @Override
-    public Material deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-        if (!json.isJsonPrimitive()) return null;
-        return Material.matchMaterial(json.getAsString());
+    public ShapelessRecipe toBukkit() {
+        ShapelessRecipe recipe = new ShapelessRecipe(namespacedKey, result.toItemStack());
+        ingredients.forEach(item -> recipe.addIngredient(item.toItemStack().getType()));
+
+        return recipe;
+    }
+
+    @Override
+    public boolean isValid() {
+        if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
+
+        for (Item item : ingredients) {
+            if (item == null) return false;
+            if (!item.isValid()) return false;
+        }
+
+        return result != null && result.isValid();
     }
 }

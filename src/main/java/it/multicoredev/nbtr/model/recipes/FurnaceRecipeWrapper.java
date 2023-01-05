@@ -1,9 +1,7 @@
-package it.multicoredev.nbtr.utils;
+package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.*;
-import org.bukkit.Material;
-
-import java.lang.reflect.Type;
+import it.multicoredev.nbtr.model.Item;
+import org.bukkit.inventory.Recipe;
 
 /**
  * BSD 3-Clause License
@@ -36,16 +34,21 @@ import java.lang.reflect.Type;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class MaterialAdapter implements JsonSerializer<Material>, JsonDeserializer<Material> {
-    @Override
-    public JsonElement serialize(Material material, Type type, JsonSerializationContext ctx) {
-        if (material == null) return null;
-        return new JsonPrimitive(material.getKey().toString());
+public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
+    protected Item input;
+    protected Item result;
+    protected Float experience;
+    protected Integer cookingTime;
+
+    public FurnaceRecipeWrapper(Type type) {
+        super(type);
     }
 
     @Override
-    public Material deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
-        if (!json.isJsonPrimitive()) return null;
-        return Material.matchMaterial(json.getAsString());
+    public abstract Recipe toBukkit();
+
+    @Override
+    public boolean isValid() {
+        return input != null && input.isValid() && result != null && result.isValid();
     }
 }
