@@ -2,6 +2,8 @@ package it.multicoredev.nbtr.model.recipes;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 /**
  * Copyright © 2022 by Lorenzo Magni
@@ -26,6 +28,8 @@ import com.google.gson.annotations.JsonAdapter;
 @JsonAdapter(Recipe.Adapter.class)
 public abstract class Recipe {
     protected String type;
+    protected transient String id;
+    protected transient Plugin plugin;
 
     public Recipe(Type type) {
         this.type = type.getType();
@@ -35,13 +39,26 @@ public abstract class Recipe {
         return Type.getFromString(type);
     }
 
+    public void init(Plugin plugin, String id) {
+        this.plugin = plugin;
+        this.id = id;
+    }
+
+    public abstract ItemStack getResult();
+
     public abstract boolean isValid();
 
     public abstract void prepare();
 
     public enum Type {
         SHAPED("crafting_shaped", ShapedRecipe.class),
-        SHAPELESS("crafting_shapeless", ShapelessRecipe.class);
+        SHAPELESS("crafting_shapeless", ShapelessRecipe.class),
+        SMELTING("smelting", SmeltingRecipe.class),
+        BLASTING("blasting", BlastingRecipe.class),
+        SMOKING("smoking", SmokingRecipe.class),
+        //CAMPFIRE("campfire_cooking", CampfireRecipe.class),
+        SMITHING_RECIPE("smithing", SmithingRecipe.class),
+        BREWING_RECIPE("brewing", BrewingRecipe.class);
 
         private final String type;
         private final Class<? extends Recipe> clazz;
@@ -73,13 +90,13 @@ public abstract class Recipe {
 
         @Override
         public Recipe deserialize(JsonElement json, java.lang.reflect.Type type, JsonDeserializationContext ctx) throws JsonParseException {
-            if (!json.isJsonObject()) return null;
+            if (!json.isJsonObject()) throw new JsonParseException("Recipe must be an object");
 
             JsonObject obj = json.getAsJsonObject();
-            if (!obj.has("type")) return null;
+            if (!obj.has("type")) throw new JsonParseException("Recipe must have a type");
 
             Type t = Type.getFromString(obj.get("type").getAsString());
-            if (t == null) return null;
+            if (t == null) throw new JsonParseException("Invalid recipe type");
 
             return ctx.deserialize(json, t.getRecipeClass());
         }

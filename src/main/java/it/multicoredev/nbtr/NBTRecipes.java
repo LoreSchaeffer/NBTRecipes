@@ -1,21 +1,22 @@
 package it.multicoredev.nbtr;
 
-import it.multicoredev.nbtr.listeners.PrepareItemCraftListener;
-import it.multicoredev.nbtr.model.recipes.Recipe;
-import it.multicoredev.nbtr.model.recipes.ShapedRecipe;
-import it.multicoredev.nbtr.model.recipes.ShapelessRecipe;
-import it.multicoredev.nbtr.utils.MaterialAdapter;
 import it.multicoredev.mbcore.spigot.Chat;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
+import it.multicoredev.nbtr.model.recipes.*;
+import it.multicoredev.nbtr.utils.MaterialAdapter;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +40,16 @@ import java.util.stream.Collectors;
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class NBTRecipes extends JavaPlugin {
-    private static final GsonHelper gson = new GsonHelper(new TypeAdapter(Material.class, new MaterialAdapter()));
+    private static final GsonHelper GSON = new GsonHelper(new TypeAdapter(Material.class, new MaterialAdapter()));
     private Config config;
     private final File recipesDir = new File(getDataFolder(), "recipes");
-    private final List<Recipe> recipes = new ArrayList<>();
+    private final Map<Recipe.Type, List<Recipe>> recipes = new HashMap<>();
+    private final List<String> registeredRecipes = new ArrayList<>();
+
+    //TODO Allow the use of tags
+    //TODO Add recipes to recipe book
+    //TODO Add recipes that need more than one item per slot
+    //TODO Add recipe editor GUI
 
     @Override
     public void onEnable() {
@@ -55,7 +62,7 @@ public class NBTRecipes extends JavaPlugin {
                 if (!recipesDir.mkdirs()) throw new IOException("Cannot create recipes folder");
             }
 
-            config = gson.autoload(new File(getDataFolder(), "config.json"), new Config().init(), Config.class);
+            config = GSON.autoload(new File(getDataFolder(), "config.json"), new Config().init(), Config.class);
         } catch (IOException e) {
             e.printStackTrace();
             onDisable();
@@ -64,7 +71,11 @@ public class NBTRecipes extends JavaPlugin {
 
         loadRecipes();
 
-        getServer().getPluginManager().registerEvents(new PrepareItemCraftListener(this), this);
+        //getServer().getPluginManager().registerEvents(new PrepareItemCraftListener(this), this);
+        //getServer().getPluginManager().registerEvents(new PrepareSmithingListener(this), this);
+        //getServer().getPluginManager().registerEvents(new BrewListener(this), this);
+
+        registerRecipes();
 
         NBTRCommand cmd = new NBTRCommand(this);
         getCommand("nbtr").setExecutor(cmd);
@@ -74,6 +85,8 @@ public class NBTRecipes extends JavaPlugin {
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
+        registeredRecipes.forEach(recipe -> getServer().removeRecipe(new NamespacedKey(this, recipe)));
+        registeredRecipes.clear();
         recipes.clear();
     }
 
@@ -81,12 +94,8 @@ public class NBTRecipes extends JavaPlugin {
         return config;
     }
 
-    public List<ShapedRecipe> getShapedRecipes() {
-        return recipes.stream().filter(recipe -> recipe instanceof ShapedRecipe).map(recipe -> (ShapedRecipe) recipe).collect(Collectors.toList());
-    }
-
-    public List<ShapelessRecipe> getShapelessRecipes() {
-        return recipes.stream().filter(recipe -> recipe instanceof ShapelessRecipe).map(recipe -> (ShapelessRecipe) recipe).collect(Collectors.toList());
+    public <T> List<T> getRecipes(Recipe.Type type) {
+        return recipes.get(type).stream().map(r -> (T) r).collect(Collectors.toList());
     }
 
     private void loadRecipes() {
@@ -100,16 +109,88 @@ public class NBTRecipes extends JavaPlugin {
             if (!file.getName().toLowerCase().endsWith(".json")) continue;
 
             try {
-                Recipe recipe = gson.load(file, Recipe.class);
+                Recipe recipe = GSON.load(file, Recipe.class);
                 if (recipe == null) continue;
+                if (!recipe.isValid()) {
+                    Chat.warning("&eRecipe " + file.getName() + " is not valid");
+                    continue;
+                }
 
+                recipe.init(this, file.getName().toLowerCase().replace(".json", ""));
                 recipe.prepare();
-                recipes.add(recipe);
+
+                if (recipes.containsKey(recipe.getType())) {
+                    recipes.get(recipe.getType()).add(recipe);
+                } else {
+                    List<Recipe> list = new ArrayList<>();
+                    list.add(recipe);
+                    recipes.put(recipe.getType(), list);
+                }
             } catch (Exception e) {
                 Chat.warning("&eLoading of recipe " + file.getName() + " failed with error: " + e.getMessage());
             }
         }
 
-        Chat.info("&bLoaded " + recipes.size() + " recipes");
+        for (Recipe.Type type : recipes.keySet()) {
+            Chat.info("&bLoaded " + recipes.get(type).size() + " " + type.name().toLowerCase() + " recipes");
+        }
+    }
+
+    private void registerRecipes() {
+        List<ShapedRecipe> shapedRecipes = getRecipes(Recipe.Type.SHAPED);
+        for (ShapedRecipe recipe : shapedRecipes) {
+            getServer().addRecipe(recipe.getBukkitRecipe());
+        }
+
+        List<SmeltingRecipe> furnaceRecipes = getRecipes(Recipe.Type.SMELTING);
+        for (SmeltingRecipe recipe : furnaceRecipes) {
+            String id = recipe.getResult().getType().getKey().toString().replace(":", "_") +
+                    "_smelting_from_" +
+                    recipe.getInput().getType().getKey().toString().replace(":", "_");
+            registeredRecipes.add(id);
+
+
+            getServer().addRecipe(new org.bukkit.inventory.FurnaceRecipe(
+                    new NamespacedKey(this, id),
+                    recipe.getResult(),
+                    new RecipeChoice.ExactChoice(recipe.getInput()),
+                    recipe.getExperience(),
+                    recipe.getCookingTime()
+            ));
+        }
+
+        List<BlastingRecipe> blastingRecipes = getRecipes(Recipe.Type.BLASTING);
+        for (BlastingRecipe recipe : blastingRecipes) {
+            String id = recipe.getResult().getType().getKey().toString().replace(":", "_") +
+                    "_blasting_from_" +
+                    recipe.getInput().getType().getKey().toString().replace(":", "_");
+            registeredRecipes.add(id);
+
+
+            getServer().addRecipe(new org.bukkit.inventory.BlastingRecipe(
+                    new NamespacedKey(this, id),
+                    recipe.getResult(),
+                    new RecipeChoice.ExactChoice(recipe.getInput()),
+                    recipe.getExperience(),
+                    recipe.getCookingTime()
+            ));
+        }
+
+        List<SmokingRecipe> smokingRecipes = getRecipes(Recipe.Type.SMOKING);
+        for (SmokingRecipe recipe : smokingRecipes) {
+            String id = recipe.getResult().getType().getKey().toString().replace(":", "_") +
+                    "_smoking_from_" +
+                    recipe.getInput().getType().getKey().toString().replace(":", "_");
+            registeredRecipes.add(id);
+
+
+            getServer().addRecipe(new org.bukkit.inventory.SmokingRecipe(
+                    new NamespacedKey(this, id),
+                    recipe.getResult(),
+                    new RecipeChoice.ExactChoice(recipe.getInput()),
+                    recipe.getExperience(),
+                    recipe.getCookingTime()
+            ));
+        }
     }
 }

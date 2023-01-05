@@ -1,22 +1,9 @@
 package it.multicoredev.nbtr.listeners;
 
 import it.multicoredev.nbtr.NBTRecipes;
-import it.multicoredev.nbtr.model.recipes.Recipe;
-import it.multicoredev.nbtr.model.recipes.ShapedRecipe;
-import it.multicoredev.nbtr.model.recipes.ShapelessRecipe;
-import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static it.multicoredev.nbtr.utils.Utils.toMatrix;
+import org.bukkit.event.inventory.BrewEvent;
 
 /**
  * Copyright © 2022 by Lorenzo Magni
@@ -38,45 +25,15 @@ import static it.multicoredev.nbtr.utils.Utils.toMatrix;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class PrepareItemCraftListener implements Listener {
+public class BrewListener implements Listener {
     private final NBTRecipes plugin;
 
-    public PrepareItemCraftListener(NBTRecipes plugin) {
+    public BrewListener(NBTRecipes plugin) {
         this.plugin = plugin;
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-    public void onCraft(PrepareItemCraftEvent event) {
-        Inventory inventory = event.getInventory();
-        ItemStack[] items = Arrays.copyOfRange(inventory.getContents(), 1, inventory.getContents().length);
+    @EventHandler
+    public void onBrew(BrewEvent event) {
 
-        Recipe recipe = tryShaped(items);
-        if (recipe == null) recipe = tryShapeless(items);
-        if (recipe != null) event.getInventory().setResult(recipe.getResult());
-    }
-
-
-    private ShapedRecipe tryShaped(ItemStack[] items) {
-        ItemStack[][] matrix = toMatrix(items);
-        List<ShapedRecipe> recipes = plugin.getRecipes(Recipe.Type.SHAPED);
-
-        for (ShapedRecipe recipe : recipes) {
-            if (recipe.compare(matrix)) return recipe;
-        }
-
-        return null;
-    }
-
-    private ShapelessRecipe tryShapeless(ItemStack[] items) {
-        List<ItemStack> ingredients = new ArrayList<>(Arrays.asList(items));
-        ingredients.removeIf(i -> i.getType().equals(Material.AIR));
-
-        List<ShapelessRecipe> recipes = plugin.getRecipes(Recipe.Type.SHAPELESS);
-
-        for (ShapelessRecipe recipe : recipes) {
-            if (recipe.compare(ingredients)) return recipe;
-        }
-
-        return null;
     }
 }

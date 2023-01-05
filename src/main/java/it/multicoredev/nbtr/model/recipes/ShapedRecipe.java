@@ -1,17 +1,20 @@
 package it.multicoredev.nbtr.model.recipes;
 
-import de.tr7zw.changeme.nbtapi.NBTContainer;
-import de.tr7zw.changeme.nbtapi.NBTItem;
 import it.multicoredev.mbcore.spigot.Chat;
 import it.multicoredev.nbtr.model.Item;
 import it.multicoredev.nbtr.utils.Utils;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static it.multicoredev.nbtr.utils.Utils.compareItems;
+import static it.multicoredev.nbtr.utils.Utils.trimMatrix;
 
 /**
  * Copyright © 2022 by Lorenzo Magni
@@ -39,13 +42,46 @@ public class ShapedRecipe extends Recipe {
     private Item result;
     private transient ItemStack[][] recipe;
     private transient int size;
+    private transient ItemStack resultItem;
 
     public ShapedRecipe() {
         super(Type.SHAPED);
     }
 
-    public boolean compare(ItemStack[][] matrix) {
+    public org.bukkit.inventory.ShapedRecipe getBukkitRecipe() {
+        NamespacedKey nk = new NamespacedKey(plugin, id);
 
+        org.bukkit.inventory.ShapedRecipe bukkitRecipe = new org.bukkit.inventory.ShapedRecipe(nk, resultItem);
+        bukkitRecipe.shape(pattern.toArray(new String[0]));
+
+        for (Map.Entry<String, Item> entry : key.entrySet()) {
+            bukkitRecipe.setIngredient(entry.getKey().charAt(0), new RecipeChoice.ExactChoice(entry.getValue().toItemStack()));
+        }
+
+        return bukkitRecipe;
+    }
+
+
+    public boolean compare(ItemStack[][] matrix) {
+        if (size > matrix.length) return false;
+        if (size < matrix.length) matrix = trimMatrix(matrix);
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                ItemStack craftingItem = matrix[i][j];
+                ItemStack recipeItem = recipe[i][j];
+
+                if (craftingItem == null) return false;
+                if (!compareItems(craftingItem, recipeItem)) return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public ItemStack getResult() {
+        return resultItem;
     }
 
     @Override
@@ -58,35 +94,21 @@ public class ShapedRecipe extends Recipe {
                     items.add(new ItemStack(Material.AIR));
                 } else {
                     Item item = key.get(String.valueOf(c));
-                    ItemStack is = new ItemStack(item.getMaterial());
 
-                    if (item.getName() != null && !item.getName().trim().isEmpty() || item.getLore() != null && !item.getLore().isEmpty()) {
-                        ItemMeta meta = is.getItemMeta();
-                        if (meta != null) {
-                            if (item.getName() != null && !item.getName().trim().isEmpty()) meta.setDisplayName(Chat.getTranslated(item.getName()));
-                            if (item.getLore() != null && !item.getLore().isEmpty()) meta.setLore(Chat.getTranslated(item.getLore()));
-                            is.setItemMeta(meta);
-                        }
+                    if (item == null) {
+                        Chat.warning("Key " + c + " not found in recipe");
+                        items.add(new ItemStack(Material.AIR));
                     }
 
-                    if (item.getNbt() != null && !item.getNbt().trim().isEmpty()) {
-                        NBTItem nbti = new NBTItem(is);
-
-                        try {
-                            nbti.mergeCompound(new NBTContainer(item.getNbt()));
-                            is = nbti.getItem();
-                        } catch (Exception ignored) {
-                            Chat.warning("Invalid NBT tag: " + item.getNbt());
-                        }
-                    }
-
-                    items.add(is);
+                    items.add(key.get(String.valueOf(c)).toItemStack());
                 }
             }
         }
 
         recipe = Utils.toMatrix(items.toArray(new ItemStack[0]));
         size = recipe.length;
+
+        resultItem = result.toItemStack();
     }
 
     @Override
@@ -106,6 +128,7 @@ public class ShapedRecipe extends Recipe {
         }
 
         if (key == null || key.isEmpty()) return false;
+
         for (Item item : key.values()) {
             if (item == null) return false;
             if (!item.isValid()) return false;

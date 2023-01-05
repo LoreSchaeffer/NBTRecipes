@@ -3,9 +3,6 @@ package it.multicoredev.nbtr.model.recipes;
 import it.multicoredev.nbtr.model.Item;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static it.multicoredev.nbtr.utils.Utils.compareItems;
 
 /**
@@ -28,63 +25,49 @@ import static it.multicoredev.nbtr.utils.Utils.compareItems;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class ShapelessRecipe extends Recipe {
-    private List<Item> ingredients;
+public class FurnaceRecipe extends Recipe {
+    private Item input;
     private Item result;
-    private transient List<ItemStack> recipe;
-    private transient int size;
-    private transient ItemStack resultItem;
+    private Float experience;
+    private Integer cookingTime;
+    private transient ItemStack inItem;
+    private transient ItemStack outItem;
 
-    public ShapelessRecipe() {
-        super(Type.SHAPELESS);
+    public FurnaceRecipe(Type type) {
+        super(type);
     }
 
-    public boolean compare(List<ItemStack> items) {
-        if (size != items.size()) return false;
-
-        List<ItemStack> neededItems = new ArrayList<>(recipe);
-
-        for (ItemStack item : items) {
-            if (!contains(neededItems, item)) return false;
-        }
-
-        return neededItems.isEmpty();
+    public boolean compare(ItemStack input) {
+        return compareItems(input, inItem);
     }
 
-    @Override
-    public void prepare() {
-        recipe = new ArrayList<>();
-        ingredients.forEach(ingredient -> recipe.add(ingredient.toItemStack()));
-        size = recipe.size();
-
-        resultItem = result.toItemStack();
+    public ItemStack getInput() {
+        return inItem;
     }
 
     @Override
     public ItemStack getResult() {
-        return resultItem;
+        return outItem;
+    }
+
+    public float getExperience() {
+        return experience;
+    }
+
+    public int getCookingTime() {
+        return cookingTime;
+    }
+
+    @Override
+    public void prepare() {
+        inItem = input.toItemStack();
+        outItem = result.toItemStack();
+        if (experience == null || experience < 0) experience = 0f;
+        if (cookingTime == null || cookingTime < 0) cookingTime = 200;
     }
 
     @Override
     public boolean isValid() {
-        if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
-
-        for (Item item : ingredients) {
-            if (item == null) return false;
-            if (!item.isValid()) return false;
-        }
-
-        return result != null && result.isValid();
-    }
-
-    private boolean contains(List<ItemStack> neededItems, ItemStack item) {
-        for (ItemStack neededItem : neededItems) {
-            if (compareItems(neededItem, item)) {
-                neededItems.remove(neededItem);
-                return true;
-            }
-        }
-
-        return false;
+        return input != null && input.isValid() && result != null && result.isValid();
     }
 }

@@ -1,6 +1,11 @@
 package it.multicoredev.nbtr.model;
 
+import de.tr7zw.changeme.nbtapi.NBTContainer;
+import de.tr7zw.changeme.nbtapi.NBTItem;
+import it.multicoredev.mbcore.spigot.Chat;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
@@ -86,6 +91,37 @@ public class Item {
 
     public String getNbt() {
         return nbt;
+    }
+
+    public ItemStack toItemStack() {
+        ItemStack item = new ItemStack(material);
+
+        if (amount != null && amount > 0) {
+            if (amount > material.getMaxStackSize()) item.setAmount(material.getMaxStackSize());
+            else item.setAmount(amount);
+        }
+
+        if (name != null || (lore != null && !lore.isEmpty())) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                if (name != null) meta.setDisplayName(Chat.getTranslated(name));
+                if (lore != null && !lore.isEmpty()) meta.setLore(Chat.getTranslated(lore));
+                item.setItemMeta(meta);
+            }
+        }
+
+        if (nbt != null && !nbt.trim().isEmpty()) {
+            NBTItem nbti = new NBTItem(item);
+
+            try {
+                nbti.mergeCompound(new NBTContainer(nbt));
+                item = nbti.getItem();
+            } catch (Exception ignored) {
+                Chat.warning("Invalid NBT tag: " + nbt);
+            }
+        }
+
+        return item;
     }
 
     public boolean isValid() {

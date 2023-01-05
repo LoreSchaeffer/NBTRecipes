@@ -35,7 +35,7 @@ public class Utils {
                 matrix[i][j] = items[i + j + k];
             }
 
-            k += 2;
+            k += size == 3 ? 2 : 1;
         }
 
         return matrix;
@@ -47,12 +47,16 @@ public class Utils {
         NBTItem requestedNBT = new NBTItem(requestedItem);
         NBTItem givenNBT = new NBTItem(givenItem);
 
-        if (requestedNBT.hasNBTData() && !givenNBT.hasNBTData()) return false;
+        if (hasNBT(requestedNBT) && !hasNBT(givenNBT)) return false;
 
         return requestedNBT.equals(givenNBT);
     }
 
-    public static ItemStack[][] cutMatrix(ItemStack[][] matrix) {
+    private static boolean hasNBT(NBTItem item) {
+        return !item.toString().equals("{}");
+    }
+
+    public static ItemStack[][] trimMatrix(ItemStack[][] matrix) {
         ItemStack[][] newMatrix = new ItemStack[2][2];
 
         boolean isFirstRowEmpty = true;

@@ -3,11 +3,6 @@ package it.multicoredev.nbtr.model.recipes;
 import it.multicoredev.nbtr.model.Item;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static it.multicoredev.nbtr.utils.Utils.compareItems;
-
 /**
  * Copyright © 2022 by Lorenzo Magni
  * This file is part of NBTRecipes.
@@ -28,63 +23,32 @@ import static it.multicoredev.nbtr.utils.Utils.compareItems;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class ShapelessRecipe extends Recipe {
-    private List<Item> ingredients;
-    private Item result;
-    private transient List<ItemStack> recipe;
-    private transient int size;
-    private transient ItemStack resultItem;
+public class BrewingRecipe extends Recipe {
+    private Item input;
+    private Item ingredient;
+    private Item output;
+    private transient ItemStack inItem;
+    private transient ItemStack ingItem;
+    private transient ItemStack outItem;
 
-    public ShapelessRecipe() {
-        super(Type.SHAPELESS);
-    }
-
-    public boolean compare(List<ItemStack> items) {
-        if (size != items.size()) return false;
-
-        List<ItemStack> neededItems = new ArrayList<>(recipe);
-
-        for (ItemStack item : items) {
-            if (!contains(neededItems, item)) return false;
-        }
-
-        return neededItems.isEmpty();
-    }
-
-    @Override
-    public void prepare() {
-        recipe = new ArrayList<>();
-        ingredients.forEach(ingredient -> recipe.add(ingredient.toItemStack()));
-        size = recipe.size();
-
-        resultItem = result.toItemStack();
+    public BrewingRecipe() {
+        super(Type.BREWING_RECIPE);
     }
 
     @Override
     public ItemStack getResult() {
-        return resultItem;
+        return outItem;
+    }
+
+    @Override
+    public void prepare() {
+        inItem = input.toItemStack();
+        ingItem = ingredient.toItemStack();
+        outItem = output.toItemStack();
     }
 
     @Override
     public boolean isValid() {
-        if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
-
-        for (Item item : ingredients) {
-            if (item == null) return false;
-            if (!item.isValid()) return false;
-        }
-
-        return result != null && result.isValid();
-    }
-
-    private boolean contains(List<ItemStack> neededItems, ItemStack item) {
-        for (ItemStack neededItem : neededItems) {
-            if (compareItems(neededItem, item)) {
-                neededItems.remove(neededItem);
-                return true;
-            }
-        }
-
-        return false;
+        return input != null && input.isValid() && ingredient != null && ingredient.isValid() && output != null && output.isValid();
     }
 }
