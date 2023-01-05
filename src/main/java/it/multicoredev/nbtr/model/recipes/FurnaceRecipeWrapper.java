@@ -1,5 +1,6 @@
 package it.multicoredev.nbtr.model.recipes;
 
+import com.google.gson.annotations.SerializedName;
 import it.multicoredev.nbtr.model.Item;
 import org.bukkit.inventory.Recipe;
 
@@ -38,6 +39,7 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
     protected Item input;
     protected Item result;
     protected Float experience;
+    @SerializedName("cooking_time")
     protected Integer cookingTime;
 
     public FurnaceRecipeWrapper(Type type) {

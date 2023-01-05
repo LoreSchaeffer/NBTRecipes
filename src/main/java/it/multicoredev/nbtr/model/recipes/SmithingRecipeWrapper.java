@@ -38,7 +38,7 @@ import org.bukkit.inventory.SmithingRecipe;
 public class SmithingRecipeWrapper extends RecipeWrapper {
     private Item base;
     private Item addition;
-    private Item output;
+    private Item result;
 
     public SmithingRecipeWrapper() {
         super(Type.SMITHING_RECIPE);
@@ -47,11 +47,11 @@ public class SmithingRecipeWrapper extends RecipeWrapper {
 
     @Override
     public SmithingRecipe toBukkit() {
-        return new SmithingRecipe(namespacedKey, output.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
+        return new SmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
     }
 
     @Override
     public boolean isValid() {
-        return base != null && base.isValid() && addition != null && addition.isValid() && output != null && output.isValid();
+        return base != null && base.isValid() && addition != null && addition.isValid() && result != null && result.isValid();
     }
 }
