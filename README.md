@@ -11,7 +11,7 @@ You can find some examples later.
 
 ## Download
 
-You can download this plugin on [Spigot](https://www.spigotmc.org/resources/vanilla-towns.90837/) or [Modrinth]().
+You can download this plugin on [Spigot](https://www.spigotmc.org/resources/vanilla-towns.90837/) or [Modrinth](https://modrinth.com/plugin/nbtrecipes).
 
 
 ### Commands
