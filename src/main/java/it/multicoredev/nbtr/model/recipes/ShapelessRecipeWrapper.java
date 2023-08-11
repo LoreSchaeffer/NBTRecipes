@@ -1,6 +1,7 @@
 package it.multicoredev.nbtr.model.recipes;
 
 import it.multicoredev.nbtr.model.Item;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class ShapelessRecipeWrapper extends RecipeWrapper {
     @Override
     public ShapelessRecipe toBukkit() {
         ShapelessRecipe recipe = new ShapelessRecipe(namespacedKey, result.toItemStack());
-        ingredients.forEach(item -> recipe.addIngredient(item.toItemStack().getType()));
+        ingredients.forEach(item -> recipe.addIngredient(new RecipeChoice.ExactChoice(item.toItemStack())));
 
         return recipe;
     }

@@ -5,6 +5,7 @@ import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -51,6 +52,7 @@ public class NBTRecipes extends JavaPlugin {
     private final File recipesDir = new File(getDataFolder(), "recipes");
     private final List<RecipeWrapper> recipes = new ArrayList<>();
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
+    private final Metrics metrics = new Metrics(this, 17319);
 
     //TODO Allow the use of tags ?
     //TODO Add recipes that need more than one item per slot ?
