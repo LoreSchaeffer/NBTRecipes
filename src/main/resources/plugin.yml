@@ -6,6 +6,7 @@ description: Add support to NBT in the crafting table
 api-version: 1.19
 website: https://github.com/LoreSchaeffer/NBTRecipes
 prefix: NBTR
+folia-supported: true
 
 commands:
   nbtrecipes:
