@@ -42,6 +42,47 @@ The majority of these fields are optional, the only one needed is the material.
 
 </details>
 
+### Discover Trigger
+<details>
+<summary>Recipe discovering</summary>
+Every recipe registered by this plugin is automatically added to the recipe book unless you specify it.
+
+You can add the <code>discover</code> tag to any recipe to make the recipe discoverable by the players by picking up an item.
+Let's make an example:
+
+```json
+{
+  "type": "crafting_shapeless",
+  "ingredients": [
+    {
+      "material": "redstone"
+    },
+    {
+      "material": "glowstone_dust"
+    },
+    {
+      "material": "gunpowder"
+    }
+  ],
+  "result": {
+    "material": "diamond"
+  },
+  "discover": {
+    "items": [
+      {
+        "material": "redstone"
+      },
+      {
+        "material": "glowstone_dust"
+      }
+    ]
+  }
+}
+```
+
+In this example you can unlock this recipe picking up a redstone dust OR a glowstone dust. The list <code>items</code> contains Item objects described above.
+</details>
+
 ### Shaped Recipe
 <details>
   <summary>Shaped recipe json</summary>

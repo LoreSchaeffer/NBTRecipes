@@ -3,11 +3,14 @@ package it.multicoredev.nbtr;
 import it.multicoredev.mbcore.spigot.Chat;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
+import it.multicoredev.nbtr.listeners.OnInventoryChange;
+import it.multicoredev.nbtr.listeners.OnPlayerJoin;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -79,6 +82,9 @@ public class NBTRecipes extends JavaPlugin {
         loadRecipes();
         registerRecipes();
 
+        getServer().getPluginManager().registerEvents(new OnInventoryChange(this), this);
+        getServer().getPluginManager().registerEvents(new OnPlayerJoin(this), this);
+
         NBTRCommand cmd = new NBTRCommand(this);
         getCommand("nbtr").setExecutor(cmd);
         getCommand("nbtr").setTabCompleter(cmd);
@@ -89,10 +95,16 @@ public class NBTRecipes extends JavaPlugin {
         registeredRecipes.forEach(getServer()::removeRecipe);
         registeredRecipes.clear();
         recipes.clear();
+
+        HandlerList.unregisterAll(this);
     }
 
     public Config config() {
         return config;
+    }
+
+    public List<RecipeWrapper> getRecipes() {
+        return recipes;
     }
 
     private void loadRecipes() {

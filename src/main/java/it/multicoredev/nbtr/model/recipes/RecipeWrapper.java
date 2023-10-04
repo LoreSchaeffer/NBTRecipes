@@ -2,6 +2,8 @@ package it.multicoredev.nbtr.model.recipes;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import it.multicoredev.nbtr.model.DiscoverTrigger;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.Plugin;
 
@@ -39,8 +41,9 @@ import org.bukkit.plugin.Plugin;
 @JsonAdapter(RecipeWrapper.Adapter.class)
 public abstract class RecipeWrapper {
     protected String type;
+    @SerializedName("discover")
+    protected DiscoverTrigger discoverTrigger;
     protected transient NamespacedKey namespacedKey;
-
 
     public RecipeWrapper(Type type) {
         this.type = type.getType();
@@ -50,8 +53,13 @@ public abstract class RecipeWrapper {
         return Type.getFromString(type);
     }
 
+    public DiscoverTrigger getDiscoverTrigger() {
+        return discoverTrigger;
+    }
+
     public void init(Plugin plugin, String id) {
         this.namespacedKey = new NamespacedKey(plugin, id);
+        if (discoverTrigger != null) discoverTrigger.init();
     }
 
     public NamespacedKey getKey() {
