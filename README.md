@@ -150,13 +150,16 @@ The classic furnace has type `smelting`, the blast furnace has type `blasting`, 
   "addition": {
     "material": "nether_star"
   },
+  "template": {
+    "material": "glowstone_dust"
+  },
   "result": {
     "material": "netherite_sword",
     "nbt": "{CustomModelData: 5}"
   }
 }
 ```
-
+<i>Template is only 1.20+</i> 
 </details>
 
 ## Contributing

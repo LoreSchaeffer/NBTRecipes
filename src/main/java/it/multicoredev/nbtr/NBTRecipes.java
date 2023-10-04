@@ -125,8 +125,12 @@ public class NBTRecipes extends JavaPlugin {
 
     private void registerRecipes() {
         recipes.forEach(recipe -> {
-            getServer().addRecipe(recipe.toBukkit());
-            registeredRecipes.add(recipe.getKey());
+            try {
+                getServer().addRecipe(recipe.toBukkit());
+                registeredRecipes.add(recipe.getKey());
+            } catch (Exception e) {
+                Chat.warning("&eRecipe '" + recipe.getKey().toString() + "' registration failed: " + e.getMessage());
+            }
         });
     }
 }

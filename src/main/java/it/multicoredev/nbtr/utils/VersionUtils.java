@@ -1,11 +1,6 @@
-package it.multicoredev.nbtr.model.recipes;
+package it.multicoredev.nbtr.utils;
 
-import it.multicoredev.nbtr.model.Item;
-import it.multicoredev.nbtr.utils.SmithingRecipeGenerator;
-import it.multicoredev.nbtr.utils.VersionUtils;
-import org.bukkit.inventory.RecipeChoice;
-import org.bukkit.inventory.SmithingRecipe;
-import org.bukkit.inventory.SmithingTransformRecipe;
+import org.bukkit.Bukkit;
 
 /**
  * BSD 3-Clause License
@@ -38,26 +33,14 @@ import org.bukkit.inventory.SmithingTransformRecipe;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class SmithingRecipeWrapper extends RecipeWrapper {
-    private Item base;
-    private Item addition;
-    private Item template;
-    private Item result;
+public class VersionUtils {
 
-    public SmithingRecipeWrapper() {
-        super(Type.SMITHING_RECIPE);
-    }
+    public static int getVersion() {
+        String rawVersion = Bukkit.getBukkitVersion();
+        if (rawVersion.contains("-")) rawVersion = rawVersion.substring(0, rawVersion.indexOf("-"));
+        if (!rawVersion.contains(".")) throw new IllegalStateException("Invalid version found: " + rawVersion);
 
-    @Override
-    public SmithingRecipe toBukkit() {
-        if (VersionUtils.getVersion() >= 20)
-            return SmithingRecipeGenerator.newSmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(template.toItemStack()), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
-        else
-            return new SmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
-    }
-
-    @Override
-    public boolean isValid() {
-        return base != null && base.isValid() && addition != null && addition.isValid() && result != null && result.isValid();
+        String[] parts = rawVersion.split("\\.");
+        return Integer.parseInt(parts[1]);
     }
 }

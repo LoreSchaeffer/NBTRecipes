@@ -1,8 +1,7 @@
-package it.multicoredev.nbtr.model.recipes;
+package it.multicoredev.nbtr.utils;
 
-import it.multicoredev.nbtr.model.Item;
-import it.multicoredev.nbtr.utils.SmithingRecipeGenerator;
-import it.multicoredev.nbtr.utils.VersionUtils;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmithingTransformRecipe;
@@ -11,7 +10,6 @@ import org.bukkit.inventory.SmithingTransformRecipe;
  * BSD 3-Clause License
  * <p>
  * Copyright (c) 2023, Lorenzo Magni
- * All rights reserved.
  * <p>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,26 +36,9 @@ import org.bukkit.inventory.SmithingTransformRecipe;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-public class SmithingRecipeWrapper extends RecipeWrapper {
-    private Item base;
-    private Item addition;
-    private Item template;
-    private Item result;
+public class SmithingRecipeGenerator {
 
-    public SmithingRecipeWrapper() {
-        super(Type.SMITHING_RECIPE);
-    }
-
-    @Override
-    public SmithingRecipe toBukkit() {
-        if (VersionUtils.getVersion() >= 20)
-            return SmithingRecipeGenerator.newSmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(template.toItemStack()), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
-        else
-            return new SmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
-    }
-
-    @Override
-    public boolean isValid() {
-        return base != null && base.isValid() && addition != null && addition.isValid() && result != null && result.isValid();
+    public static SmithingRecipe newSmithingRecipe(NamespacedKey namespacedKey, ItemStack result, RecipeChoice template, RecipeChoice base, RecipeChoice addition) {
+        return new SmithingTransformRecipe(namespacedKey, result, template, base, addition);
     }
 }
