@@ -17,6 +17,21 @@ You can download this plugin on [Spigot](https://www.spigotmc.org/resources/nbtr
 ### Commands
 * `/nbtrecipes reload` - Reloads the recipes and the config file.
     * `nbtr.command` Permission needed to use the command.
+* `/nbtrecipes list` - Lists all the recipes added by this plugin.
+    * `nbtr.command` Permission needed to use the command.
+
+## How to use
+You can place your recipes inside the `recipes` folder in the plugin folder.
+If you want to organize your recipes in subfolders you can do it, the plugin will search for recipes in every subfolder of the `recipes` folder.
+The plugin will automatically load all the recipes in the subfolders and add their relative path to the recipe namespaced key.
+
+
+To create a recipe just create a text file with the `.json` extension and put it in the `recipes` folder.
+Edit the file with your favorite text editor and put the recipe in it as shown in the examples below.
+
+### Config
+In the config you can change the namespace of your recipes and all the messages of the plugin.
+The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
 ## Examples
 

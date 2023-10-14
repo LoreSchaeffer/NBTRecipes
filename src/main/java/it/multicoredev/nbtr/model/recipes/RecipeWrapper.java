@@ -5,7 +5,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import it.multicoredev.nbtr.model.DiscoverTrigger;
 import org.bukkit.NamespacedKey;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.inventory.Recipe;
 
 /**
  * BSD 3-Clause License
@@ -57,8 +57,8 @@ public abstract class RecipeWrapper {
         return discoverTrigger;
     }
 
-    public void init(Plugin plugin, String id) {
-        this.namespacedKey = new NamespacedKey(plugin, id);
+    public void init(NamespacedKey namespacedKey) {
+        this.namespacedKey = namespacedKey;
         if (discoverTrigger != null) discoverTrigger.init();
     }
 
@@ -66,7 +66,7 @@ public abstract class RecipeWrapper {
         return namespacedKey;
     }
 
-    public abstract org.bukkit.inventory.Recipe toBukkit();
+    public abstract Recipe toBukkit();
 
     public abstract boolean isValid();
 

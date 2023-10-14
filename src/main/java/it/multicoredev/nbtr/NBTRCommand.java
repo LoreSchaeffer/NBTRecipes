@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * BSD 3-Clause License
@@ -61,12 +62,19 @@ public class NBTRCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("reload")) {
-            plugin.onDisable();
-            plugin.onEnable();
-            Chat.send(plugin.config().reloaded, sender);
-        } else {
-            Chat.send(plugin.config().incorrectUsage, sender);
+        switch (args[0].toLowerCase(Locale.ROOT)) {
+            case "reload":
+                plugin.onDisable();
+                plugin.onEnable();
+                Chat.send(plugin.config().reloaded, sender);
+                break;
+            case "list":
+                Chat.send(plugin.config().recipesList.replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
+                plugin.getRecipes().forEach(recipe -> Chat.send(plugin.config().recipesListItem.replace("{recipe}", recipe.getKey().toString()), sender));
+                break;
+            default:
+                Chat.send(plugin.config().incorrectUsage, sender);
+                break;
         }
 
         return true;
@@ -76,7 +84,7 @@ public class NBTRCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("nbtr.command")) return null;
-        if (args.length == 1) return TabCompleterUtil.getCompletions(args[0], "reload");
+        if (args.length == 1) return TabCompleterUtil.getCompletions(args[0], "reload", "list");
 
         return null;
     }

@@ -35,17 +35,25 @@ import it.multicoredev.mclib.json.JsonConfig;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class Config extends JsonConfig {
+    public String namespace;
     @SerializedName("insufficient_permissions")
     public String insufficientPerms;
     @SerializedName("incorrect_usage")
     public String incorrectUsage;
     public String reloaded;
+    @SerializedName("recipes_list")
+    public String recipesList;
+    @SerializedName("recipes_list_item")
+    public String recipesListItem;
 
     @Override
     public Config init() {
+        if (namespace == null) namespace = "nbtrecipes";
         if (insufficientPerms == null) insufficientPerms = "&cInsufficient permissions!";
         if (incorrectUsage == null) incorrectUsage = "&cIncorrect usage!";
         if (reloaded == null) reloaded = "&6Plugin reloaded";
+        if (recipesList == null) recipesList = "&6There are &e{amount} &6recipes loaded";
+        if (recipesListItem == null) recipesListItem = "&6&l- &e{recipe}";
         return this;
     }
 }

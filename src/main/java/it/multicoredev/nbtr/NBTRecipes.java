@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * BSD 3-Clause License
@@ -51,11 +52,13 @@ import java.util.List;
  */
 public class NBTRecipes extends JavaPlugin {
     private static final GsonHelper GSON = new GsonHelper(new TypeAdapter(Material.class, new MaterialAdapter()));
+    private static final String ALLOWED_NAMESPACE_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789/_-";
     private Config config;
     private final File recipesDir = new File(getDataFolder(), "recipes");
     private final List<RecipeWrapper> recipes = new ArrayList<>();
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
     private final Metrics metrics = new Metrics(this, 17319);
+    private String namespace;
 
     //TODO Allow the use of tags ?
     //TODO Add recipes that need more than one item per slot ?
@@ -79,7 +82,11 @@ public class NBTRecipes extends JavaPlugin {
             return;
         }
 
-        loadRecipes();
+        namespace = getNamespace();
+
+        loadRecipes(recipesDir);
+        Chat.info("&bLoaded " + recipes.size() + " recipes");
+
         registerRecipes();
 
         getServer().getPluginManager().registerEvents(new OnInventoryChange(this), this);
@@ -107,32 +114,40 @@ public class NBTRecipes extends JavaPlugin {
         return recipes;
     }
 
-    private void loadRecipes() {
-        File[] files = recipesDir.listFiles();
-        if (files == null || files.length == 0) {
-            Chat.info("&bLoaded 0 recipes");
-            return;
-        }
+    private void loadRecipes(File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) return;
 
         for (File file : files) {
-            if (!file.getName().toLowerCase().endsWith(".json")) continue;
+            if (file.isDirectory()) {
+                loadRecipes(file);
+            } else {
+                if (!file.getName().toLowerCase().endsWith(".json")) continue;
 
-            try {
-                RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
-                if (recipe == null) continue;
-                if (!recipe.isValid()) {
-                    Chat.warning("&eRecipe " + file.getName() + " is not valid");
-                    continue;
+                try {
+                    RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
+                    if (recipe == null) continue;
+                    if (!recipe.isValid()) {
+                        Chat.warning("&eRecipe " + file.getName() + " is not valid");
+                        continue;
+                    }
+
+                    recipe.init(getNamespacedKey(file));
+                    recipes.add(recipe);
+                } catch (Exception e) {
+                    Chat.warning("&eLoading of recipe " + file.getName() + " failed with error: " + e.getMessage());
                 }
-
-                recipe.init(this, file.getName().toLowerCase().replace(".json", ""));
-                recipes.add(recipe);
-            } catch (Exception e) {
-                Chat.warning("&eLoading of recipe " + file.getName() + " failed with error: " + e.getMessage());
             }
         }
+    }
 
-        Chat.info("&bLoaded " + recipes.size() + " recipes");
+    private String getNamespace() {
+        String namespace = config().namespace;
+        if (namespace == null || namespace.trim().isEmpty()) namespace = getName().toLowerCase(Locale.ROOT);
+        namespace = namespace.replaceAll("[^" + ALLOWED_NAMESPACE_CHARS + "]", "");
+
+        if (namespace.trim().isEmpty()) throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character");
+        return namespace;
     }
 
     private void registerRecipes() {
@@ -144,5 +159,32 @@ public class NBTRecipes extends JavaPlugin {
                 Chat.warning("&eRecipe '" + recipe.getKey().toString() + "' registration failed: " + e.getMessage());
             }
         });
+    }
+
+    private String getRelativePath(File file) throws IllegalArgumentException {
+        try {
+            String parentPath = recipesDir.getPath().replace("\\", "/");
+            String filePath = file.getParentFile().getPath().replace("\\", "/");
+
+            if (!filePath.startsWith(parentPath)) throw new IllegalArgumentException("File must be inside the scripts root directory");
+
+            String relativePath = filePath.substring(parentPath.length());
+            if (relativePath.startsWith("/")) relativePath = relativePath.substring(1);
+
+            return relativePath;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private NamespacedKey getNamespacedKey(File file) {
+        String key = getRelativePath(file) + "/" + file.getName().toLowerCase(Locale.ROOT).replace(".json", "");
+        if (key.contains(" ")) key = key.replace(" ", "_");
+        key = key.replaceAll("[^" + ALLOWED_NAMESPACE_CHARS + "]", "");
+
+        if (key.trim().isEmpty()) throw new IllegalArgumentException("File name must contain at least one alphanumeric character");
+
+        return new NamespacedKey(namespace, key);
     }
 }
