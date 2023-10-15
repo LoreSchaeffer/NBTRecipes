@@ -2,7 +2,7 @@ package it.multicoredev.nbtr.model;
 
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import it.multicoredev.mbcore.spigot.Chat;
+import it.multicoredev.nbtr.Chat;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

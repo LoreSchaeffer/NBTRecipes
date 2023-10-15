@@ -1,6 +1,5 @@
 package it.multicoredev.nbtr;
 
-import it.multicoredev.mbcore.spigot.Chat;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.OnInventoryChange;

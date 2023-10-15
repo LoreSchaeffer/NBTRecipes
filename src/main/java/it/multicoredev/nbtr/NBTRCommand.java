@@ -1,7 +1,5 @@
 package it.multicoredev.nbtr;
 
-import it.multicoredev.mbcore.spigot.Chat;
-import it.multicoredev.mbcore.spigot.util.TabCompleterUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
