@@ -1,7 +1,6 @@
 package it.multicoredev.nbtr.model.recipes;
 
 import org.bukkit.inventory.BlastingRecipe;
-import org.bukkit.inventory.RecipeChoice;
 
 /**
  * BSD 3-Clause License
@@ -48,7 +47,7 @@ public class BlastingRecipeWrapper extends FurnaceRecipeWrapper {
         return new BlastingRecipe(
                 namespacedKey,
                 result.toItemStack(),
-                new RecipeChoice.ExactChoice(input.toItemStack()),
+                recipeChoice,
                 experience,
                 cookingTime
         );

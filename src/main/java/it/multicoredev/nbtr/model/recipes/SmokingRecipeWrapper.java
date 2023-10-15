@@ -48,7 +48,7 @@ public class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
         return new SmokingRecipe(
                 namespacedKey,
                 result.toItemStack(),
-                new RecipeChoice.ExactChoice(input.toItemStack()),
+                recipeChoice,
                 experience,
                 cookingTime
         );

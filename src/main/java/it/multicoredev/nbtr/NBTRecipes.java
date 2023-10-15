@@ -1,9 +1,13 @@
 package it.multicoredev.nbtr;
 
+import com.google.common.io.Files;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.OnInventoryChange;
 import it.multicoredev.nbtr.listeners.OnPlayerJoin;
+import it.multicoredev.nbtr.model.json.RecipeChoiceAdapter;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
 import org.bstats.bukkit.Metrics;
@@ -14,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -124,7 +129,11 @@ public class NBTRecipes extends JavaPlugin {
                 if (!file.getName().toLowerCase().endsWith(".json")) continue;
 
                 try {
-                    RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
+                    final Gson gson = new GsonBuilder().setLenient().disableHtmlEscaping()
+                            .registerTypeAdapter(Material.class, new MaterialAdapter())
+                            .registerTypeAdapterFactory(new RecipeChoiceAdapter())
+                            .create();
+                    RecipeWrapper recipe = gson.fromJson(Files.newReader(file, StandardCharsets.UTF_8), RecipeWrapper.class);
                     if (recipe == null) continue;
                     if (!recipe.isValid()) {
                         Chat.warning("&eRecipe " + file.getName() + " is not valid");

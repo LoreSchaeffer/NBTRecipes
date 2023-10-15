@@ -1,8 +1,11 @@
 package it.multicoredev.nbtr.model.recipes;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import it.multicoredev.nbtr.model.Item;
+import it.multicoredev.nbtr.model.json.RecipeChoiceAdapter;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 
 /**
  * BSD 3-Clause License
@@ -36,7 +39,8 @@ import org.bukkit.inventory.Recipe;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
-    protected Item input;
+    @JsonAdapter(RecipeChoiceAdapter.class) @SerializedName("input")
+    protected RecipeChoice recipeChoice;
     protected Item result;
     protected Float experience;
     @SerializedName("cooking_time")
@@ -51,6 +55,6 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
 
     @Override
     public boolean isValid() {
-        return input != null && input.isValid() && result != null && result.isValid();
+        return result != null && result.isValid();
     }
 }
