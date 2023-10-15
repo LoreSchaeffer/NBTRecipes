@@ -30,7 +30,6 @@ public final class RecipeChoiceAdapter implements TypeAdapterFactory {
             public T read(final JsonReader in) throws IOException {
                 // Reading as single object.
                 if (in.peek() == JsonToken.BEGIN_OBJECT) {
-                    System.out.println(1);
                     final Item item = gson.getAdapter(Item.class).read(in);
                     // ...
                     if (item.isValid() == false)
@@ -42,7 +41,6 @@ public final class RecipeChoiceAdapter implements TypeAdapterFactory {
                 }
                 // Reading as array of objects.
                 else if (in.peek() == JsonToken.BEGIN_ARRAY) {
-                    System.out.println(2);
                     final List<Item> items = (List<Item>) gson.getAdapter(TypeToken.getParameterized(List.class, Item.class)).read(in);
                     // ...
                     if (items.stream().allMatch(Item::isValid) == false)
