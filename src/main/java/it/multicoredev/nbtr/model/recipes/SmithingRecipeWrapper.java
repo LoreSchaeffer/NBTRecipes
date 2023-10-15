@@ -5,7 +5,6 @@ import it.multicoredev.nbtr.utils.SmithingRecipeGenerator;
 import it.multicoredev.nbtr.utils.VersionUtils;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmithingRecipe;
-import org.bukkit.inventory.SmithingTransformRecipe;
 
 /**
  * BSD 3-Clause License
@@ -39,9 +38,9 @@ import org.bukkit.inventory.SmithingTransformRecipe;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class SmithingRecipeWrapper extends RecipeWrapper {
-    private Item base;
-    private Item addition;
-    private Item template;
+    private RecipeChoice base;
+    private RecipeChoice addition;
+    private RecipeChoice template;
     private Item result;
 
     public SmithingRecipeWrapper() {
@@ -50,14 +49,13 @@ public class SmithingRecipeWrapper extends RecipeWrapper {
 
     @Override
     public SmithingRecipe toBukkit() {
-        if (VersionUtils.getVersion() >= 20)
-            return SmithingRecipeGenerator.newSmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(template.toItemStack()), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
-        else
-            return new SmithingRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(base.toItemStack()), new RecipeChoice.ExactChoice(addition.toItemStack()));
+        return (VersionUtils.getVersion() >= 20)
+                ? SmithingRecipeGenerator.newSmithingRecipe(namespacedKey, result.toItemStack(), template, base, addition)
+                : new SmithingRecipe(namespacedKey, result.toItemStack(), base, addition);
     }
 
     @Override
     public boolean isValid() {
-        return base != null && base.isValid() && addition != null && addition.isValid() && result != null && result.isValid();
+        return base != null && addition != null && result != null && result.isValid();
     }
 }

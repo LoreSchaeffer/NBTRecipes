@@ -47,7 +47,7 @@ public class BlastingRecipeWrapper extends FurnaceRecipeWrapper {
         return new BlastingRecipe(
                 namespacedKey,
                 result.toItemStack(),
-                recipeChoice,
+                input,
                 experience,
                 cookingTime
         );

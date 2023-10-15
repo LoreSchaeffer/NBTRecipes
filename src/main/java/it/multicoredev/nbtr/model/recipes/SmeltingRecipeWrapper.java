@@ -47,7 +47,7 @@ public class SmeltingRecipeWrapper extends FurnaceRecipeWrapper {
         return new FurnaceRecipe(
                 namespacedKey,
                 result.toItemStack(),
-                recipeChoice,
+                input,
                 experience,
                 cookingTime
         );

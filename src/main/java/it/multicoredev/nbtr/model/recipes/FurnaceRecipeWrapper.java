@@ -1,9 +1,7 @@
 package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import it.multicoredev.nbtr.model.Item;
-import it.multicoredev.nbtr.model.json.RecipeChoiceAdapter;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.RecipeChoice;
 
@@ -39,8 +37,7 @@ import org.bukkit.inventory.RecipeChoice;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
-    @JsonAdapter(RecipeChoiceAdapter.class) @SerializedName("input")
-    protected RecipeChoice recipeChoice;
+    protected RecipeChoice input;
     protected Item result;
     protected Float experience;
     @SerializedName("cooking_time")

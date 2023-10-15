@@ -5,6 +5,7 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapelessRecipe;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * BSD 3-Clause License
@@ -38,7 +39,7 @@ import java.util.List;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class ShapelessRecipeWrapper extends RecipeWrapper {
-    private List<Item> ingredients;
+    private List<RecipeChoice> ingredients;
     private Item result;
 
     public ShapelessRecipeWrapper() {
@@ -48,7 +49,8 @@ public class ShapelessRecipeWrapper extends RecipeWrapper {
     @Override
     public ShapelessRecipe toBukkit() {
         ShapelessRecipe recipe = new ShapelessRecipe(namespacedKey, result.toItemStack());
-        ingredients.forEach(item -> recipe.addIngredient(new RecipeChoice.ExactChoice(item.toItemStack())));
+
+        ingredients.forEach(recipe::addIngredient);
 
         return recipe;
     }
@@ -57,10 +59,8 @@ public class ShapelessRecipeWrapper extends RecipeWrapper {
     public boolean isValid() {
         if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
 
-        for (Item item : ingredients) {
-            if (item == null) return false;
-            if (!item.isValid()) return false;
-        }
+        if (ingredients.stream().anyMatch(Objects::isNull) == true)
+            return false;
 
         return result != null && result.isValid();
     }
