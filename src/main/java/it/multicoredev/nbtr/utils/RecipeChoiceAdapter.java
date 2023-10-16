@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import it.multicoredev.nbtr.model.Item;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice> {
 
     @Override
-    public RecipeChoice deserialize(final JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {
+    public RecipeChoice deserialize(final @NotNull JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         // Reading as single object.
         if (json.isJsonObject() == true) {
             final Item item = context.deserialize(json, Item.class);
@@ -40,7 +41,7 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
                     : new RecipeChoice.ExactChoice(items.stream().map(Item::toItemStack).collect(Collectors.toList()));
         }
         // Throwing exception for unexpected input.
-        throw new JsonParseException("Expected BEGIN_OBJECT or BEGIN_ARRAY but found something else.");
+        throw new JsonParseException("Expected JsonObject or JsonArray but found " + json.getClass().getSimpleName() + ".");
     }
 
 }
