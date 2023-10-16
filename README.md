@@ -1,26 +1,12 @@
 # NBTRecipes
-
-#### A very simple plugin to add recipes that use NBT data.
-
-## Description
-
-With this plugin you can create recipes that check NBT data for ingredients.
+A very simple plugin to add recipes that use NBT data. You can use it to create recipes that check NBT data for ingredients.
 It's very simple to use, the recipes for this plugin are very similar to vanilla ones.
-
-You can find some examples later.
-
-## Download
 
 You can download this plugin on [Spigot](https://www.spigotmc.org/resources/nbtrecipes.107230/) or [Modrinth](https://modrinth.com/plugin/nbtrecipes).
 
+<br />
 
-### Commands
-* `/nbtrecipes reload` - Reloads the recipes and the config file.
-    * `nbtr.command` Permission needed to use the command.
-* `/nbtrecipes list` - Lists all the recipes added by this plugin.
-    * `nbtr.command` Permission needed to use the command.
-
-## How to use
+## Usage
 You can place your recipes inside the `recipes` folder in the plugin folder.
 If you want to organize your recipes in subfolders you can do it, the plugin will search for recipes in every subfolder of the `recipes` folder.
 The plugin will automatically load all the recipes in the subfolders and add their relative path to the recipe namespaced key.
@@ -29,199 +15,240 @@ The plugin will automatically load all the recipes in the subfolders and add the
 To create a recipe just create a text file with the `.json` extension and put it in the `recipes` folder.
 Edit the file with your favorite text editor and put the recipe in it as shown in the examples below.
 
+<br />
+
 ### Config
 In the config you can change the namespace of your recipes and all the messages of the plugin.
 The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
+<br />
+
+### Commands
+* `/nbtrecipes reload` - Reloads the recipes and the config file.
+  * `nbtr.command` Permission needed to use the command.
+* `/nbtrecipes list` - Lists all the recipes added by this plugin.
+  * `nbtr.command` Permission needed to use the command.
+
+<br />
+
 ## Examples
+Examples, and more detailed description of plugin components.
+
+<br />
 
 ### Item
-<details>
-<summary>Item json</summary>
+This is an object that represents an item in the recipes, it can be used as an ingredient or as a result. Majority of fields are optional, in fact, the only one needed is the `material`.
 
-```json
-{
-  "material": "minecraft:stone",
-  "amount": 4,
-  "name": "&bStone",
-  "lore": [
-    "&bThis is the first line",
-    "&bThis is the second line"
-  ],
-  "nbt": "{CustomModelData:1}"
-}
-```
+When only `material` field is defined, and no other items within the choice requires any metadata (name, lore, nbt), items in the recipe are matched by material.
 
-This is tha object that represents an item in the recipes, it can be used as an ingredient or as a result.
-The majority of these fields are optional, the only one needed is the material.
+*See below examples for more details.*
 
-</details>
+<br />
 
 ### Discover Trigger
+Recipe trigger can make any recipe to be discoverable by players, by picking up an item.
+Field `discover_trigger` is optional and if not specified, recipe will be discovered and visible by default.
+
+*See below examples for more details.*
+
+<br />
+
+### Shaped Recipe
+Shaped recipe applies to crafting table and inventory crafting.
+
 <details>
-<summary>Recipe discovering</summary>
-Every recipe registered by this plugin is automatically added to the recipe book unless you specify it.
+  <summary><b>Click here to expand/collapse JSON example.</b></summary>
 
-You can add the <code>discover</code> tag to any recipe to make the recipe discoverable by the players by picking up an item.
-Let's make an example:
-
-```json
+```json5
 {
-  "type": "crafting_shapeless",
-  "ingredients": [
-    {
-      "material": "redstone"
-    },
-    {
-      "material": "glowstone_dust"
-    },
-    {
-      "material": "gunpowder"
-    }
+  "type": "crafting_shaped",
+  // Crafting pattern. Array must consist of either:
+  // - two, two-character elements reflecting an inventory crafting grid.
+  // - three, three-character elements reflecting a crafting table grid.
+  "pattern": [
+    "  D",
+    " D ",
+    "S  "
   ],
-  "result": {
-    "material": "diamond"
+  // Key to the pattern.
+  "key": {
+    "S": [
+      // Multiple item choices can be specified for one ingredient.
+      // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
+      { "material": "stick" },
+      { "material": "blaze_rod" }
+    ],
+    // 
+    "D": { "material": "diamond" }
   },
-  "discover": {
+  // Recipe result.
+  "result": {
+    "material": "diamond_sword",
+    "amount": 1,
+    "name": "Diagonally Crafter Diamond Sword",
+    "lore": [
+      "As the name suggests..."
+    ],
+    "nbt": "{CustomModelData: 2}"
+  },
+  // Recipe discover trigger. Optional.
+  "discover_trigger": {
+    // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
-      {
-        "material": "redstone"
-      },
-      {
-        "material": "glowstone_dust"
-      }
+      { "material": "diamond" }
     ]
   }
 }
 ```
 
-In this example you can unlock this recipe picking up a redstone dust OR a glowstone dust. The list <code>items</code> contains Item objects described above.
-</details>
-
-### Shaped Recipe
-<details>
-  <summary>Shaped recipe json</summary>
-
-```json
-{
-  "type": "crafting_shaped",
-  "pattern": [
-    "rrr",
-    "gcg",
-    "ppp"
-  ],
-  "key": {
-    "r": {
-      "material": "redstone"
-    },
-    "g": {
-      "material": "glowstone_dust"
-    },
-    "p": {
-      "material": "gunpowder"
-    },
-    "c": {
-      "material": "knowledge_book",
-      "nbt": "{CustomModelData: 1}"
-    }
-  },
-  "result": {
-    "material": "knowledge_book",
-    "amount": 1,
-    "name": "Mixed Powder",
-    "lore": [
-      "A mixture of gunpowder, glowstone and redstone",
-      "that can be used to craft something"
-    ],
-    "nbt": "{CustomModelData: 2}"
-  }
-}
-```
-
-This can also be 2x2.
+Field `discover_trigger` is optional.
 
 </details>
+
+<br />
 
 ### Shapeless Recipe
-<details>
-  <summary>Shapeless recipe json</summary>
+Shapeless recipe applies to crafting table and inventory crafting.
 
-```json
+<details>
+  <summary><b>Click here to expand/collapse JSON example.</b></summary>
+
+```json5
 {
   "type": "crafting_shapeless",
+  // Crafting ingredients.
   "ingredients": [
-    {
-      "material": "redstone"
-    },
-    {
-      "material": "glowstone_dust"
-    },
-    {
-      "material": "gunpowder"
-    }
+    // Multiple item choices can be specified for one ingredient.
+    // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
+    [
+      { "material": "oak_log" },
+      { "material": "spruce_log" },
+      { "material": "birch_log" },
+      { "material": "jungle_log" },
+      { "material": "acacia_log" },
+      { "material": "dark_oak_log" },
+      { "material": "mangrove_log" },
+      { "material": "cherry_log" }
+    ],
+    { "material": "flint_and_steel" }
   ],
-  "result": {
-    "material": "diamond"
+  // Recipe result.
+  "result": { "material": "charcoal" },
+  // Recipe discover trigger. Optional.
+  "discover_trigger": {
+    // Items to be picked-up before this recipe is "discovered" by the player.
+    "items": [
+      { "material": "oak_log" },
+      { "material": "spruce_log" },
+      { "material": "birch_log" },
+      { "material": "jungle_log" },
+      { "material": "acacia_log" },
+      { "material": "dark_oak_log" },
+      { "material": "mangrove_log" },
+      { "material": "cherry_log" }
+    ]
   }
 }
 ```
 
+Field `discover_trigger` is optional.
+
 </details>
+
+<br />
 
 ### Smelting Recipes
-<details>
-  <summary>Smelting recipe json</summary>
+Smelting recipes can be applied to regular furnace, blast furnace, smoker or campfire.
 
-```json
+<details>
+  <summary><b>Click here to expand/collapse JSON example.</b></summary>
+
+```json5
 {
+  // Recipe type. For furnace recipes you can use one of: [SMELTING, BLASTING, SMOKING, CAMPFIRE_COOKING]
   "type": "smelting",
-  "input": {
-    "material": "crimson_stem"
-  },
-  "result": {
-    "material": "charcoal"
-  },
+  // Furnace input.
+  "input": [
+    // Multiple item choices can be specified for one ingredient.
+    // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
+    { "material": "diamond_helmet" },
+    { "material": "diamond_chestplate" },
+    { "material": "diamond_leggings" },
+    { "material": "diamond_boots" }
+  ],
+  // Recipe result.
+  "result": { "material": "diamond" },
+  // Experience to award player after taking smelting result. Optional.
   "experience": 0.7,
-  "cooking_time": 200
-}
-```
-
-This can be used for smelting, blasting, smoking and campfire cooking.
-The classic furnace has type `smelting`, the blast furnace has type `blasting`, the smoker has type `smoking` and the campfire has type `campfire_cooking`.
-
-`experience` and `cooking_time` are optional.
-
-</details>
-
-### Smithing Recipe
-<details>
-  <summary>Smithing recipe json</summary>
-
-```json
-{
-  "type": "smithing",
-  "base": {
-    "material": "diamond_sword"
-  },
-  "addition": {
-    "material": "nether_star"
-  },
-  "template": {
-    "material": "glowstone_dust"
-  },
-  "result": {
-    "material": "netherite_sword",
-    "nbt": "{CustomModelData: 5}"
+  // Time it takes to cook this recipe. Measured in ticks. Optional.
+  "cooking_time": 200,
+  // Recipe discover trigger. Optional.
+  "discover_trigger": {
+    // Items to be picked-up before this recipe is "discovered" by the player.
+    "items": [
+      { "material": "diamond_helmet" },
+      { "material": "diamond_chestplate" },
+      { "material": "diamond_leggings" },
+      { "material": "diamond_boots" }
+    ]
   }
 }
 ```
-<i>Template is only 1.20+</i> 
+All furnace recipe types follow the same schema.
+- `smelting` - recipe for regular furnace.
+- `blasting` - recipe for blast furnace.
+- `smoking` - recipe for smoker.
+- `campfire_cooking` - recipe for campfire.
+
+Fields `experience`, `cooking_time` and `discover_trigger` are optional.
+
 </details>
+
+<br />
+
+### Smithing Recipe
+Smithing recipe applies to smithing table.
+
+<details>
+  <summary><b>Click here to expand/collapse JSON example.</b></summary>
+
+```json5
+{
+  "type": "smithing",
+  // Base item, you can think of it as an item which upgrades (could) be applied to. More than one item choice can be specified.
+  "base": { "material": "netherite_sword" },
+  // Template item, you can think of it as an upgrade which is applied to the base item. More than one item choice can be specified.
+  // This field works only when running 1.20 or higher.
+  "template": { "material": "blaze_powder" },
+  // Addition item. For vanilla recipes, it's usually a trim material. More than one item choice can be specified.
+  "addition": { "material": "nether_star" },
+  // Recipe result.
+  "result": {
+    "material": "netherite_sword",
+    "name": "Shiny Sword of the Nether",
+    "nbt": "{CustomModelData: 5}"
+  },
+  // Recipe discover trigger. Optional.
+  "discover_trigger": {
+    // Items to be picked-up before this recipe is "discovered" by the player.
+    "items": [
+      { "material": "netherite_sword" },
+
+    ]
+  }
+}
+``` 
+
+</details>
+
+<br />
 
 ## Contributing
 
 To contribute to this repository just fork this repository make your changes or add your code and make a pull request.
 If you find an error or a bug you can open an issue [here](https://github.com/LoreSchaeffer/NBTRecipes/issues).
+
+<br />
 
 ## License
 
