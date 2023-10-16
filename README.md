@@ -85,7 +85,7 @@ Shaped recipe applies to crafting table and inventory crafting.
   "result": {
     "material": "diamond_sword",
     "amount": 1,
-    "name": "Diagonally Crafter Diamond Sword",
+    "name": "Diagonally Crafted Diamond Sword",
     "lore": [
       "As the name suggests..."
     ],
@@ -216,27 +216,25 @@ Smithing recipe applies to smithing table.
 {
   "type": "smithing",
   // Base item, you can think of it as an item which upgrades (could) be applied to. More than one item choice can be specified.
-  "base": { "material": "netherite_sword" },
+  "base": { "material": "iron_pickaxe" },
   // Template item, you can think of it as an upgrade which is applied to the base item. More than one item choice can be specified.
   // This field works only when running 1.20 or higher.
-  "template": { "material": "blaze_powder" },
+  "template": { "material": "air" },
   // Addition item. For vanilla recipes, it's usually a trim material. More than one item choice can be specified.
-  "addition": { "material": "nether_star" },
-  // Recipe result.
-  "result": {
-    "material": "netherite_sword",
-    "name": "Shiny Sword of the Nether",
-    "nbt": "{CustomModelData: 5}"
-  },
+  "addition": { "material": "diamond" },
+  // Recipe result. Metadata is not supported as it's copied directly from the base item.
+  "result": { "material": "diamond_pickaxe" },
   // Recipe discover trigger. Optional.
   "discover_trigger": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
-      { "material": "netherite_sword" }
+      { "material": "iron_pickaxe" }
     ]
   }
 }
 ``` 
+
+Metadata (name, lore, nbt) is not supported for result items, as it's copied directly from the base item.
 
 </details>
 
