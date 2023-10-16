@@ -48,7 +48,7 @@ When only `material` field is defined, and no other items within the choice requ
 
 ### Discover Trigger
 Recipe trigger can make any recipe to be discoverable by players, by picking up an item.
-Field `discover_trigger` is optional and if not specified, recipe will be discovered and visible by default.
+Field `discover` is optional and if not specified, recipe will be discovered and visible by default.
 
 *See below examples for more details.*
 
@@ -93,7 +93,7 @@ Shaped recipe applies to crafting table and inventory crafting.
     "nbt": "{CustomModelData: 2}"
   },
   // Recipe discover trigger. Optional.
-  "discover_trigger": {
+  "discover": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
       { "material": "diamond" }
@@ -102,7 +102,7 @@ Shaped recipe applies to crafting table and inventory crafting.
 }
 ```
 
-Field `discover_trigger` is optional.
+Field `discover` is optional.
 
 </details>
 
@@ -136,7 +136,7 @@ Shapeless recipe applies to crafting table and inventory crafting.
   // Recipe result.
   "result": { "material": "charcoal" },
   // Recipe discover trigger. Optional.
-  "discover_trigger": {
+  "discover": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
       { "material": "oak_log" },
@@ -152,7 +152,7 @@ Shapeless recipe applies to crafting table and inventory crafting.
 }
 ```
 
-Field `discover_trigger` is optional.
+Field `discover` is optional.
 
 </details>
 
@@ -184,7 +184,7 @@ Smelting recipes can be applied to regular furnace, blast furnace, smoker or cam
   // Time it takes to cook this recipe. Measured in ticks. Optional.
   "cooking_time": 200,
   // Recipe discover trigger. Optional.
-  "discover_trigger": {
+  "discover": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
       { "material": "diamond_helmet" },
@@ -201,7 +201,7 @@ All furnace recipe types follow the same schema.
 - `smoking` - recipe for smoker.
 - `campfire_cooking` - recipe for campfire.
 
-Fields `experience`, `cooking_time` and `discover_trigger` are optional.
+Fields `experience`, `cooking_time` and `discover` are optional.
 
 </details>
 
@@ -226,7 +226,7 @@ Smithing recipe applies to smithing table.
   // Recipe result. Metadata is not supported as it's copied directly from the base item.
   "result": { "material": "diamond_pickaxe" },
   // Recipe discover trigger. Optional.
-  "discover_trigger": {
+  "discover": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
       { "material": "iron_pickaxe" }
@@ -236,6 +236,8 @@ Smithing recipe applies to smithing table.
 ``` 
 
 Metadata (name, lore, nbt) is not supported for result items, as it's copied directly from the base item.
+
+Field `discover` is optional.
 
 </details>
 
