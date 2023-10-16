@@ -5,6 +5,7 @@ import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * BSD 3-Clause License
@@ -39,7 +40,7 @@ import java.util.Map;
  */
 public class ShapedRecipeWrapper extends RecipeWrapper {
     private String[] pattern;
-    private Map<Character, Item> key;
+    private Map<Character, RecipeChoice> key;
     private Item result;
 
     public ShapedRecipeWrapper() {
@@ -51,9 +52,7 @@ public class ShapedRecipeWrapper extends RecipeWrapper {
         ShapedRecipe recipe = new ShapedRecipe(namespacedKey, result.toItemStack());
         recipe.shape(pattern);
 
-        for (Map.Entry<Character, Item> entry : key.entrySet()) {
-            recipe.setIngredient(entry.getKey(), new RecipeChoice.ExactChoice(entry.getValue().toItemStack()));
-        }
+        key.forEach(recipe::setIngredient);
 
         return recipe;
     }
@@ -76,10 +75,7 @@ public class ShapedRecipeWrapper extends RecipeWrapper {
 
         if (key == null || key.isEmpty()) return false;
 
-        for (Item item : key.values()) {
-            if (item == null) return false;
-            if (!item.isValid()) return false;
-        }
+        if (key.values().stream().anyMatch(Objects::isNull)) return false;
 
         for (String s : pattern) {
             for (char c : s.toCharArray()) {

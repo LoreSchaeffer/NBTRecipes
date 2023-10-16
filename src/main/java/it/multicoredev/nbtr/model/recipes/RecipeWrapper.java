@@ -7,6 +7,8 @@ import it.multicoredev.nbtr.model.DiscoverTrigger;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Recipe;
 
+import java.util.Arrays;
+
 /**
  * BSD 3-Clause License
  * <p>
@@ -97,7 +99,7 @@ public abstract class RecipeWrapper {
 
         public static Type getFromString(String type) {
             for (Type t : Type.values()) {
-                if (t.getType().equals(type)) {
+                if (t.getType().equalsIgnoreCase(type)) {
                     return t;
                 }
             }
@@ -109,13 +111,13 @@ public abstract class RecipeWrapper {
 
         @Override
         public RecipeWrapper deserialize(JsonElement json, java.lang.reflect.Type type, JsonDeserializationContext ctx) throws JsonParseException {
-            if (!json.isJsonObject()) throw new JsonParseException("Recipe must be an object");
+            if (!json.isJsonObject()) throw new JsonParseException("Expected JsonObject but found " + json.getClass().getSimpleName() + ".");
 
             JsonObject obj = json.getAsJsonObject();
-            if (!obj.has("type")) throw new JsonParseException("Recipe must have a type");
+            if (!obj.has("type")) throw new JsonParseException("Required field \"type\" has not been specified. Must be one of " + Arrays.toString(Type.values()));
 
             Type t = Type.getFromString(obj.get("type").getAsString());
-            if (t == null) throw new JsonParseException("Invalid recipe type");
+            if (t == null) throw new JsonParseException("Required field \"type\" is not a valid recipe type. Must be one of " + Arrays.toString(Type.values()));
 
             return ctx.deserialize(json, t.getRecipeClass());
         }

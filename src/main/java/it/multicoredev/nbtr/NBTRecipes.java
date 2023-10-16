@@ -6,10 +6,12 @@ import it.multicoredev.nbtr.listeners.OnInventoryChange;
 import it.multicoredev.nbtr.listeners.OnPlayerJoin;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
+import it.multicoredev.nbtr.utils.RecipeChoiceAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -50,7 +52,10 @@ import java.util.Locale;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class NBTRecipes extends JavaPlugin {
-    private static final GsonHelper GSON = new GsonHelper(new TypeAdapter(Material.class, new MaterialAdapter()));
+    private static final GsonHelper GSON = new GsonHelper(
+            new TypeAdapter(Material.class, new MaterialAdapter()),
+            new TypeAdapter(RecipeChoice.class, new RecipeChoiceAdapter())
+    );
     private static final String ALLOWED_NAMESPACE_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789/_-";
     private Config config;
     private final File recipesDir = new File(getDataFolder(), "recipes");

@@ -1,6 +1,5 @@
 package it.multicoredev.nbtr.model.recipes;
 
-import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.SmokingRecipe;
 
 /**
@@ -48,7 +47,7 @@ public class SmokingRecipeWrapper extends FurnaceRecipeWrapper {
         return new SmokingRecipe(
                 namespacedKey,
                 result.toItemStack(),
-                new RecipeChoice.ExactChoice(input.toItemStack()),
+                input,
                 experience,
                 cookingTime
         );

@@ -1,7 +1,6 @@
 package it.multicoredev.nbtr.model.recipes;
 
 import org.bukkit.inventory.CampfireRecipe;
-import org.bukkit.inventory.RecipeChoice;
 
 /**
  * BSD 3-Clause License
@@ -45,6 +44,6 @@ public class CampfireRecipeWrapper extends FurnaceRecipeWrapper {
         if (experience == null || experience < 0) experience = 0f;
         if (cookingTime == null || cookingTime < 0) cookingTime = 200;
 
-        return new CampfireRecipe(namespacedKey, result.toItemStack(), new RecipeChoice.ExactChoice(input.toItemStack()), experience, cookingTime);
+        return new CampfireRecipe(namespacedKey, result.toItemStack(), input, experience, cookingTime);
     }
 }
