@@ -1,8 +1,10 @@
 # NBTRecipes
-A very simple plugin to add recipes that use NBT data. You can use it to create recipes that check NBT data for ingredients.
-It's very simple to use, the recipes for this plugin are very similar to vanilla ones.
+<a href="https://modrinth.com/plugin/nbtrecipes/"><img alt="modrinth" height="54" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
+<a href="https://www.spigotmc.org/resources/nbtrecipes.107230/"><img alt="spigotmc" height="54" src="badges/spigotmc_vector.svg"></a>
 
-You can download this plugin on [Spigot](https://www.spigotmc.org/resources/nbtrecipes.107230/) or [Modrinth](https://modrinth.com/plugin/nbtrecipes).
+Plugin designed to simplify creation of custom recipes, without the need writing any code or touching datapacks.
+You can attach common data (amount, name, lore) as well as NBT tags to items processed by the recipes.
+Format is very similar to the one used by datapacks.
 
 <br />
 
@@ -10,7 +12,6 @@ You can download this plugin on [Spigot](https://www.spigotmc.org/resources/nbtr
 You can place your recipes inside the `recipes` folder in the plugin folder.
 If you want to organize your recipes in subfolders you can do it, the plugin will search for recipes in every subfolder of the `recipes` folder.
 The plugin will automatically load all the recipes in the subfolders and add their relative path to the recipe namespaced key.
-
 
 To create a recipe just create a text file with the `.json` extension and put it in the `recipes` folder.
 Edit the file with your favorite text editor and put the recipe in it as shown in the examples below.
@@ -32,7 +33,7 @@ The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`,
 <br />
 
 ## Examples
-Examples, and more detailed description of plugin components.
+Examples and more detailed description of plugin components.
 
 <br />
 
