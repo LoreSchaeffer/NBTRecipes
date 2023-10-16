@@ -75,8 +75,7 @@ public class ShapedRecipeWrapper extends RecipeWrapper {
 
         if (key == null || key.isEmpty()) return false;
 
-        if (key.values().stream().anyMatch(Objects::isNull) == true)
-            return false;
+        if (key.values().stream().anyMatch(Objects::isNull)) return false;
 
         for (String s : pattern) {
             for (char c : s.toCharArray()) {

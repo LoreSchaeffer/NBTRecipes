@@ -19,24 +19,24 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
     @Override
     public RecipeChoice deserialize(final @NotNull JsonElement json, final Type type, final JsonDeserializationContext context) throws JsonParseException {
         // Reading as single object.
-        if (json.isJsonObject() == true) {
+        if (json.isJsonObject()) {
             final Item item = context.deserialize(json, Item.class);
-            // ...
-            if (item.isValid() == false)
+            // Throwing an exception if item validation fails.
+            if (!item.isValid())
                 throw new JsonParseException("Required field \"material\" does not exist.");
-            // ...
-            return (item.toItemStack().hasItemMeta() == false)
+            // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
+            return (!item.toItemStack().hasItemMeta())
                     ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
                     : new RecipeChoice.ExactChoice(item.toItemStack());
         }
         // Reading as array of objects.
-        else if (json.isJsonArray() == true) {
+        else if (json.isJsonArray()) {
             final List<Item> items = context.deserialize(json, TypeToken.getParameterized(List.class, Item.class).getType());
-            // ...
-            if (items.stream().allMatch(Item::isValid) == false)
+            // Throwing an exception if validation of any item fails.
+            if (!items.stream().allMatch(Item::isValid))
                 throw new JsonParseException("Required field \"material\" does not exist on one or more elements.");
-            // ...
-            return (items.stream().map(Item::toItemStack).allMatch(it -> it.hasItemMeta() == false) == true)
+            // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
+            return (items.stream().map(Item::toItemStack).allMatch(it -> !it.hasItemMeta()))
                     ? new RecipeChoice.MaterialChoice(items.stream().map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
                     : new RecipeChoice.ExactChoice(items.stream().map(Item::toItemStack).collect(Collectors.toList()));
         }

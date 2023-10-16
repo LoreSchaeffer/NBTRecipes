@@ -52,6 +52,6 @@ public abstract class FurnaceRecipeWrapper extends RecipeWrapper {
 
     @Override
     public boolean isValid() {
-        return result != null && result.isValid();
+        return input != null && result != null && result.isValid();
     }
 }

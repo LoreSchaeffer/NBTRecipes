@@ -59,8 +59,7 @@ public class ShapelessRecipeWrapper extends RecipeWrapper {
     public boolean isValid() {
         if (ingredients == null || ingredients.isEmpty() || ingredients.size() > 9) return false;
 
-        if (ingredients.stream().anyMatch(Objects::isNull) == true)
-            return false;
+        if (ingredients.stream().anyMatch(Objects::isNull)) return false;
 
         return result != null && result.isValid();
     }
