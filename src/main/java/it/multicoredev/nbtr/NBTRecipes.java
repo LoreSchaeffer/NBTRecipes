@@ -1,24 +1,21 @@
 package it.multicoredev.nbtr;
 
-import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.OnInventoryChange;
 import it.multicoredev.nbtr.listeners.OnPlayerJoin;
-import it.multicoredev.nbtr.model.json.RecipeChoiceAdapter;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
+import it.multicoredev.nbtr.utils.RecipeChoiceAdapter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +52,10 @@ import java.util.Locale;
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 public class NBTRecipes extends JavaPlugin {
-    private static final GsonHelper GSON = new GsonHelper(new TypeAdapter(Material.class, new MaterialAdapter()));
+    private static final GsonHelper GSON = new GsonHelper(
+            new TypeAdapter(Material.class, new MaterialAdapter()),
+            new TypeAdapter(RecipeChoice.class, new RecipeChoiceAdapter())
+    );
     private static final String ALLOWED_NAMESPACE_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789/_-";
     private Config config;
     private final File recipesDir = new File(getDataFolder(), "recipes");
@@ -129,11 +129,7 @@ public class NBTRecipes extends JavaPlugin {
                 if (!file.getName().toLowerCase().endsWith(".json")) continue;
 
                 try {
-                    final Gson gson = new GsonBuilder().setLenient().disableHtmlEscaping()
-                            .registerTypeAdapter(Material.class, new MaterialAdapter())
-                            .registerTypeAdapterFactory(new RecipeChoiceAdapter())
-                            .create();
-                    RecipeWrapper recipe = gson.fromJson(Files.newReader(file, StandardCharsets.UTF_8), RecipeWrapper.class);
+                    RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
                     if (recipe == null) continue;
                     if (!recipe.isValid()) {
                         Chat.warning("&eRecipe " + file.getName() + " is not valid");
