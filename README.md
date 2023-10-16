@@ -232,8 +232,7 @@ Smithing recipe applies to smithing table.
   "discover_trigger": {
     // Items to be picked-up before this recipe is "discovered" by the player.
     "items": [
-      { "material": "netherite_sword" },
-
+      { "material": "netherite_sword" }
     ]
   }
 }
