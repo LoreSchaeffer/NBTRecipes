@@ -16,15 +16,11 @@ The plugin will automatically load all the recipes in the subfolders and add the
 To create a recipe just create a text file with the `.json` extension and put it in the `recipes` folder.
 Edit the file with your favorite text editor and put the recipe in it as shown in the examples below.
 
-<br />
-
-### Config
+### 1.1. Config
 In the config you can change the namespace of your recipes and all the messages of the plugin.
 The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
-<br />
-
-### Commands
+### 1.2. Commands
 * `/nbtrecipes reload` - Reloads the recipes and the config file.
   * `nbtr.command` Permission needed to use the command.
 * `/nbtrecipes list` - Lists all the recipes added by this plugin.
@@ -32,48 +28,57 @@ The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`,
 
 <br />
 
-## Examples
-Examples and more detailed description of plugin components.
+## Components
+Description of recipe components and their capabilities.
 
-<br />
-
-### Item
+### 2.1. Item
 Item is an object that represents an item in the recipes. It can be used as an ingredient, input or as a result. Majority of fields are optional, in fact, the only required one is the `material`.
 
-When only `material` field is defined, and no other items within the choice requires any metadata (name, lore, nbt), items in the recipe are matched by material.
+### 2.2. Tag
+Tags, specifically material tags, may be described as groups of materials. They're an actual vanilla feature and are commonly referenced in various parts of the game.
 
-*See below examples for more details.*
-
-<br />
-
-### Tag
-Tags may be described as categories/groups of materials, which can be used in a specific ingredient slot.
-
-For example, when the input field of a smelting recipe is set to `{ "tag": "minecraft:boats" }` and result is set to `{ "material": "coal_block" }`, this allows all types of boats to be smelted into a block of coal.
+They can be used in all ingredient or input slots, but cannot be mixed together with different choice types. For example, when the input field of a smelting recipe is set to tag `mincraft:boats` and result is set to `coal_block`, this allows all types of boats to be smelted into a block of coal.
 
 Please note that some tags, including those added or modified by datapacks, may not work.
 
-*See below examples for more details.*
+### 2.3. Choice
+Choice represents set of items **or** set of materials **or** a tag, which can be used in a specific ingredient or input slot.
+
+Most ingredient or input slots are expected to consist of exactly one choice, which, if not tag, can be an array with multiple elements but keep in mind some recipe types may accept an array of choices.
+
+Please refer to [Examples](#examples) section below for more details.
+
+#### 2.3.1. Item(s) Choice
+Can be used to select individual items, or multiple items defined as an array. If no elements have metadata specified, the recipe will compare items based on their material.
+```json5
+"input": { "material": "minecraft:stone" }
+```
+```json5
+"input": [
+  { "material": "minecraft:stone" },
+  { "material": "minecraft:cobblestone" }
+]
+```
+#### 2.3.2. Tag Choice
+Can be used to select individual group of items. Recipe will compare items based on their material.
+```json5
+"input": { "tag": "minecraft:boats" }
+```
 
 <br />
 
-### Choice
-Choice represents set of items, set of materials, or a tag, which can be used in a specific ingredient or input slot.
+### 2.4. Discover Trigger
+Recipe trigger can make any recipe to be discoverable by players, by picking up an item.
+This feature is optional and if left unspecified, the recipe will be automatically discovered and visible by default.
 
-Every ingredient or input slot is expected to consist of exactly one choice, which can be single item, set of items or a tag, where the latter is essentially a predefined set of materials.
-
-<br />
-
-### Discover Trigger
-Recipe trigger can make any recipe to be discoverable by players, by picking up an item. It's an array of choices.
-
-Field `discover` is optional and if left unspecified, recipe will be discovered and visible by default.
-
-*See below examples for more details.*
+Please refer to [Examples](#examples) section below for more details.
 
 <br />
 
-### Shaped Recipe
+## Examples
+Collection of JSON examples for each supported recipe type.
+
+### 3.1. Shaped Recipe
 Shaped recipe applies to crafting table and inventory crafting.
 
 <details>
@@ -123,9 +128,7 @@ Field `discover` is optional.
 
 </details>
 
-<br />
-
-### Shapeless Recipe
+### 3.2. Shapeless Recipe
 Shapeless recipe applies to crafting table and inventory crafting.
 
 <details>
@@ -156,9 +159,7 @@ Field `discover` is optional.
 
 </details>
 
-<br />
-
-### Smelting Recipes
+### 3.3. Smelting Recipes
 Smelting recipes can be applied to regular furnace, blast furnace, smoker or campfire.
 
 <details>
@@ -203,9 +204,7 @@ Fields `experience`, `cooking_time` and `discover` are optional.
 
 </details>
 
-<br />
-
-### Smithing Recipe
+### 3.4. Smithing Recipe
 Smithing recipe applies to smithing table.
 
 <details>
