@@ -38,7 +38,7 @@ Examples and more detailed description of plugin components.
 <br />
 
 ### Item
-This is an object that represents an item in the recipes, it can be used as an ingredient or as a result. Majority of fields are optional, in fact, the only one needed is the `material`.
+Item is an object that represents an item in the recipes. It can be used as an ingredient, input or as a result. Majority of fields are optional, in fact, the only required one is the `material`.
 
 When only `material` field is defined, and no other items within the choice requires any metadata (name, lore, nbt), items in the recipe are matched by material.
 
@@ -46,9 +46,28 @@ When only `material` field is defined, and no other items within the choice requ
 
 <br />
 
+### Tag
+Tags may be described as categories/groups of materials, which can be used in a specific ingredient slot.
+
+For example, when the input field of a smelting recipe is set to `{ "tag": "minecraft:boats" }` and result is set to `{ "material": "coal_block" }`, this allows all types of boats to be smelted into a block of coal.
+
+Please note that some tags, including those added or modified by datapacks, may not work.
+
+*See below examples for more details.*
+
+<br />
+
+### Choice
+Choice represents set of items, set of materials, or a tag, which can be used in a specific ingredient or input slot.
+
+Every ingredient or input slot is expected to consist of exactly one choice, which can be single item, set of items or a tag, where the latter is essentially a predefined set of materials.
+
+<br />
+
 ### Discover Trigger
-Recipe trigger can make any recipe to be discoverable by players, by picking up an item.
-Field `discover` is optional and if not specified, recipe will be discovered and visible by default.
+Recipe trigger can make any recipe to be discoverable by players, by picking up an item. It's an array of choices.
+
+Field `discover` is optional and if left unspecified, recipe will be discovered and visible by default.
 
 *See below examples for more details.*
 
@@ -72,14 +91,12 @@ Shaped recipe applies to crafting table and inventory crafting.
     "S  "
   ],
   // Key to the pattern.
+  // Each character must be mapped to exactly one recipe choice, which can be an array with multiple elements.
   "key": {
     "S": [
-      // Multiple item choices can be specified for one ingredient.
-      // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
       { "material": "stick" },
       { "material": "blaze_rod" }
     ],
-    // 
     "D": { "material": "diamond" }
   },
   // Recipe result.
@@ -94,7 +111,7 @@ Shaped recipe applies to crafting table and inventory crafting.
   },
   // Recipe discover trigger. Optional.
   "discover": {
-    // Items to be picked-up before this recipe is "discovered" by the player.
+    // Items that discovers the recipe. List of recipe choices. Each choice can an array with multiple elements.
     "items": [
       { "material": "diamond" }
     ]
@@ -117,36 +134,19 @@ Shapeless recipe applies to crafting table and inventory crafting.
 ```json5
 {
   "type": "crafting_shapeless",
-  // Crafting ingredients.
+  // Crafting ingredients. List of recipe choices. Each choice can an array with multiple elements.
   "ingredients": [
-    // Multiple item choices can be specified for one ingredient.
-    // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
-    [
-      { "material": "oak_log" },
-      { "material": "spruce_log" },
-      { "material": "birch_log" },
-      { "material": "jungle_log" },
-      { "material": "acacia_log" },
-      { "material": "dark_oak_log" },
-      { "material": "mangrove_log" },
-      { "material": "cherry_log" }
-    ],
+    { "tag": "minecraft:logs" },
     { "material": "flint_and_steel" }
   ],
   // Recipe result.
   "result": { "material": "charcoal" },
   // Recipe discover trigger. Optional.
   "discover": {
-    // Items to be picked-up before this recipe is "discovered" by the player.
+    // Items that discovers the recipe. List of recipe choices. Each choice can an array with multiple elements.
     "items": [
-      { "material": "oak_log" },
-      { "material": "spruce_log" },
-      { "material": "birch_log" },
-      { "material": "jungle_log" },
-      { "material": "acacia_log" },
-      { "material": "dark_oak_log" },
-      { "material": "mangrove_log" },
-      { "material": "cherry_log" }
+      { "tag": "minecraft:logs" },
+      { "material": "flint_and_steel" },
     ]
   }
 }
@@ -168,10 +168,8 @@ Smelting recipes can be applied to regular furnace, blast furnace, smoker or cam
 {
   // Recipe type. For furnace recipes you can use one of: [SMELTING, BLASTING, SMOKING, CAMPFIRE_COOKING]
   "type": "smelting",
-  // Furnace input.
+  // Furnace input. Exactly one recipe choice, which can be an array with multiple elements.
   "input": [
-    // Multiple item choices can be specified for one ingredient.
-    // In case metadata (name/lore/nbt) is attached to an item, all choices are matched as EXACT.
     { "material": "diamond_helmet" },
     { "material": "diamond_chestplate" },
     { "material": "diamond_leggings" },
@@ -185,7 +183,7 @@ Smelting recipes can be applied to regular furnace, blast furnace, smoker or cam
   "cooking_time": 200,
   // Recipe discover trigger. Optional.
   "discover": {
-    // Items to be picked-up before this recipe is "discovered" by the player.
+    // Items that discovers the recipe. List of recipe choices. Each choice can an array with multiple elements.
     "items": [
       { "material": "diamond_helmet" },
       { "material": "diamond_chestplate" },
@@ -216,18 +214,20 @@ Smithing recipe applies to smithing table.
 ```json5
 {
   "type": "smithing",
-  // Base item, you can think of it as an item which upgrades (could) be applied to. More than one item choice can be specified.
+  // Base item, you can think of it as an item which upgrades (could) be applied to.
+  // Exactly one recipe choice. Can be an array with multiple elements.
   "base": { "material": "iron_pickaxe" },
-  // Template item, you can think of it as an upgrade which is applied to the base item. More than one item choice can be specified.
-  // This field works only when running 1.20 or higher.
+  // Template item, you can think of it as an upgrade which is applied to the base item. Requires 1.20 or higher.
+  // Exactly one recipe choice. Can be an array with multiple elements.
   "template": { "material": "air" },
-  // Addition item. For vanilla recipes, it's usually a trim material. More than one item choice can be specified.
+  // Addition item. For vanilla recipes, it's usually a trim material.
+  // Exactly one recipe choice. Can be an array with multiple elements.
   "addition": { "material": "diamond" },
   // Recipe result. Metadata is not supported as it's copied directly from the base item.
   "result": { "material": "diamond_pickaxe" },
   // Recipe discover trigger. Optional.
   "discover": {
-    // Items to be picked-up before this recipe is "discovered" by the player.
+    // Items that discovers the recipe. List of recipe choices. Each choice can an array with multiple elements.
     "items": [
       { "material": "iron_pickaxe" }
     ]
