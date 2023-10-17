@@ -1,6 +1,8 @@
 # NBTRecipes
-<a href="https://modrinth.com/plugin/nbtrecipes/"><img alt="modrinth" height="54" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
-<a href="https://www.spigotmc.org/resources/nbtrecipes.107230/"><img alt="spigotmc" height="54" src="badges/spigotmc_vector.svg"></a>
+<a href="https://modrinth.com/plugin/nbtrecipes/"><img alt="modrinth" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg"></a>
+<a href="https://www.spigotmc.org/resources/nbtrecipes.107230/"><img alt="spigotmc" height="44" src="badges/spigotmc_vector.svg"></a>
+<a href="https://hangar.papermc.io/LoreSchaeffer/NBTRecipes"><img alt="hangar" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg"></a>
+<a href="https://legacy.curseforge.com/minecraft/bukkit-plugins/nbtrecipes"><img alt="curseforge" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg"></a>
 
 Plugin designed to simplify creation of custom recipes, without the need writing any code or touching datapacks.
 You can attach common data (amount, name, lore) as well as NBT tags to items processed by the recipes.
