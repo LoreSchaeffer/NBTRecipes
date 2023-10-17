@@ -6,7 +6,7 @@
 
     <groupId>it.multicoredev.nbtr</groupId>
     <artifactId>NBTRecipes</artifactId>
-    <version>1.1.2</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>NBTRecipes</name>
@@ -39,6 +39,10 @@
             <id>LoreSchaeffer</id>
             <name>Lorenzo Magni</name>
             <url>https://github.com/LoreSchaeffer</url>
+        </developer>
+        <developer>
+            <id>Grabsky</id>
+            <url>https://github.com/Grabsky</url>
         </developer>
     </developers>
 
