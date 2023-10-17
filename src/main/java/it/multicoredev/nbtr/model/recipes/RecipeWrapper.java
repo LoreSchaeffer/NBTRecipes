@@ -61,7 +61,6 @@ public abstract class RecipeWrapper {
 
     public void init(NamespacedKey namespacedKey) {
         this.namespacedKey = namespacedKey;
-        if (discoverTrigger != null) discoverTrigger.init();
     }
 
     public NamespacedKey getKey() {

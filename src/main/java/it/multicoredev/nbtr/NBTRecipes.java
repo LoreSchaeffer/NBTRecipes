@@ -2,8 +2,7 @@ package it.multicoredev.nbtr;
 
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
-import it.multicoredev.nbtr.listeners.OnInventoryChange;
-import it.multicoredev.nbtr.listeners.OnPlayerJoin;
+import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
 import it.multicoredev.nbtr.utils.RecipeChoiceAdapter;
@@ -64,8 +63,6 @@ public class NBTRecipes extends JavaPlugin {
     private final Metrics metrics = new Metrics(this, 17319);
     private String namespace;
 
-    //TODO Allow the use of tags ?
-    //TODO Add recipes that need more than one item per slot ?
     //TODO Add recipe editor GUI ?
 
     @Override
@@ -93,8 +90,7 @@ public class NBTRecipes extends JavaPlugin {
 
         registerRecipes();
 
-        getServer().getPluginManager().registerEvents(new OnInventoryChange(this), this);
-        getServer().getPluginManager().registerEvents(new OnPlayerJoin(this), this);
+        getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
 
         NBTRCommand cmd = new NBTRCommand(this);
         getCommand("nbtr").setExecutor(cmd);

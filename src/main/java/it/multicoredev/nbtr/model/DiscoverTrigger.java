@@ -1,9 +1,8 @@
 package it.multicoredev.nbtr.model;
 
 import com.google.gson.annotations.SerializedName;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,23 +38,9 @@ import java.util.List;
  */
 public class DiscoverTrigger {
     @SerializedName("items")
-    private List<Item> requiredItems;
-    private transient List<ItemStack> requiredItemStacks;
+    private List<RecipeChoice> requiredChoices;
 
-    public void init() {
-        if (requiredItems != null && !requiredItems.isEmpty()) {
-            requiredItemStacks = new ArrayList<>();
-            for (Item item : requiredItems) {
-                requiredItemStacks.add(item.toItemStack());
-            }
-        }
-    }
-
-    public List<Item> getRequiredItems() {
-        return requiredItems;
-    }
-
-    public List<ItemStack> getRequiredItemStacks() {
-        return requiredItemStacks;
+    public List<RecipeChoice> getRequiredChoices() {
+        return requiredChoices;
     }
 }
