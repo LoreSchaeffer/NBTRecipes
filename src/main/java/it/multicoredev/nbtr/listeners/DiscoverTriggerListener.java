@@ -51,6 +51,40 @@ public final class DiscoverTriggerListener implements Listener {
         this.plugin = plugin;
     }
 
+    @EventHandler
+    public void onPlayerJoin(final PlayerJoinEvent event) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            final Player player = event.getPlayer();
+            // Iterating over list of recipes added by the plugin.
+            plugin.getRecipes().forEach(recipe -> {
+                // Skipping already discovered recipes.
+                if (player.hasDiscoveredRecipe(recipe.getKey()))
+                    return;
+                // Making player immediately discover recipes with no criteria specified.
+                if (recipe.getDiscoverTrigger() == null)
+                    Bukkit.getScheduler().callSyncMethod(plugin, () -> player.discoverRecipe(recipe.getKey()));
+                    // Otherwise, testing each choice individually.
+                else if (recipe.getDiscoverTrigger().getRequiredChoices() != null && !recipe.getDiscoverTrigger().getRequiredChoices().isEmpty()) {
+                    // Iterating over contents of player's inventory.
+                    for (final @Nullable ItemStack item : player.getInventory().getContents()) {
+                        if (item == null || item.getType() == Material.AIR)
+                            continue;
+                        // Iterating over list of choices that can discover recipe for the player.
+                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredChoices()) {
+                            // Testing item against the current choice.
+                            if (choice.test(item)) {
+                                // Item passed the choice test, discovering (current) recipe for the player.
+                                Bukkit.getScheduler().callSyncMethod(plugin, () -> player.discoverRecipe(recipe.getKey()));
+                                // Breaking from the choices loop, as this recipe has been discovered now.
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onPickupItem(final EntityPickupItemEvent event) {
         if (event.getEntity() instanceof Player player)
@@ -77,40 +111,6 @@ public final class DiscoverTriggerListener implements Listener {
                     }
                 });
             });
-    }
-
-    @EventHandler
-    public void onPlayerJoin(final PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            final Player player = event.getPlayer();
-            // Iterating over list of recipes added by the plugin.
-            plugin.getRecipes().forEach(recipe -> {
-                // Skipping already discovered recipes.
-                if (player.hasDiscoveredRecipe(recipe.getKey()))
-                    return;
-                // Making player immediately discover recipes with no criteria specified.
-                if (recipe.getDiscoverTrigger() == null)
-                    Bukkit.getScheduler().callSyncMethod(plugin, () -> player.discoverRecipe(recipe.getKey()));
-                // Otherwise, testing each choice individually.
-                else if (recipe.getDiscoverTrigger().getRequiredChoices() != null && !recipe.getDiscoverTrigger().getRequiredChoices().isEmpty()) {
-                    // Iterating over contents of player's inventory.
-                    for (final @Nullable ItemStack item : player.getInventory().getContents()) {
-                        if (item == null || item.getType() == Material.AIR)
-                            continue;
-                        // Iterating over list of choices that can discover recipe for the player.
-                        for (final RecipeChoice choice : recipe.getDiscoverTrigger().getRequiredChoices()) {
-                            // Testing item against the current choice.
-                            if (choice.test(item)) {
-                                // Item passed the choice test, discovering (current) recipe for the player.
-                                Bukkit.getScheduler().callSyncMethod(plugin, () -> player.discoverRecipe(recipe.getKey()));
-                                // Breaking from the choices loop, as this recipe has been discovered now.
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
-        });
     }
 
 }
