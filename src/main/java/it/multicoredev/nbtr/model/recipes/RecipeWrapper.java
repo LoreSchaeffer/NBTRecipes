@@ -1,6 +1,12 @@
 package it.multicoredev.nbtr.model.recipes;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import it.multicoredev.nbtr.model.DiscoverTrigger;
@@ -61,7 +67,6 @@ public abstract class RecipeWrapper {
 
     public void init(NamespacedKey namespacedKey) {
         this.namespacedKey = namespacedKey;
-        if (discoverTrigger != null) discoverTrigger.init();
     }
 
     public NamespacedKey getKey() {
@@ -84,6 +89,9 @@ public abstract class RecipeWrapper {
         private final String type;
         private final Class<? extends RecipeWrapper> clazz;
 
+        // This can be cached as enums don't change in the runtime.
+        private static final String[] TYPES = Arrays.stream(Type.values()).map(Type::getType).toArray(String[]::new);
+
         Type(String type, Class<? extends RecipeWrapper> clazz) {
             this.type = type;
             this.clazz = clazz;
@@ -105,6 +113,12 @@ public abstract class RecipeWrapper {
             }
             return null;
         }
+
+        // Returns list of valid (json) types for all supported recipes.
+        public static String[] types() {
+            return TYPES;
+        }
+
     }
 
     public static class Adapter implements JsonSerializer<RecipeWrapper>, JsonDeserializer<RecipeWrapper> {
@@ -114,10 +128,10 @@ public abstract class RecipeWrapper {
             if (!json.isJsonObject()) throw new JsonParseException("Expected JsonObject but found " + json.getClass().getSimpleName() + ".");
 
             JsonObject obj = json.getAsJsonObject();
-            if (!obj.has("type")) throw new JsonParseException("Required field \"type\" has not been specified. Must be one of " + Arrays.toString(Type.values()));
+            if (!obj.has("type")) throw new JsonParseException("Required property \"type\" has not been specified. Must be one of " + Arrays.toString(Type.types()));
 
             Type t = Type.getFromString(obj.get("type").getAsString());
-            if (t == null) throw new JsonParseException("Required field \"type\" is not a valid recipe type. Must be one of " + Arrays.toString(Type.values()));
+            if (t == null) throw new JsonParseException("Required property \"type\" is not a valid recipe type. Must be one of " + Arrays.toString(Type.types()));
 
             return ctx.deserialize(json, t.getRecipeClass());
         }
