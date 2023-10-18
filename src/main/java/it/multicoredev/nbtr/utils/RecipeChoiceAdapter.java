@@ -59,7 +59,7 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
                 final Item item = context.deserialize(json, Item.class);
                 // Throwing an exception if item validation fails.
                 if (!item.isValid())
-                    throw new JsonParseException("Required field \"material\" does not exist.");
+                    throw new JsonParseException("Required property \"material\" does not exist.");
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 return (!item.toItemStack().hasItemMeta())
                         ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
@@ -71,23 +71,23 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
                     key = key.substring(1);
                 // Throwing an exception if key is null or NamespacedKey validation fails.
                 if (NamespacedKey.fromString(key) == null)
-                    throw new JsonParseException("Required field \"key\" does not represent a valid namespaced key.");
+                    throw new JsonParseException("Required property \"tag\" does not represent a valid namespaced key.");
                 // Getting tag from the items registry.
                 final Tag<Material> tag = Bukkit.getTag(Tag.REGISTRY_ITEMS, NamespacedKey.fromString(key), Material.class);
                 // Throwing an exception if tag is null.
-                if (tag == null) throw new JsonParseException("Required field \"key\" does not represent a valid item/material tag.");
+                if (tag == null) throw new JsonParseException("Required property \"tag\" does not represent a valid material tag.");
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
                 return new RecipeChoice.MaterialChoice(tag);
             }
             // Throwing exception for unexpected input.
-            throw new JsonParseException("Expected a JsonObject with either the \"material\" or \"tag\" property, but neither was found.");
+            throw new JsonParseException("Expected JsonObject with either the \"material\" or \"tag\" property, but neither was found.");
         }
         // Reading as array of objects.
         else if (json.isJsonArray()) {
             final List<Item> items = context.deserialize(json, TypeToken.getParameterized(List.class, Item.class).getType());
             // Throwing an exception if validation of any item fails.
             if (!items.stream().allMatch(Item::isValid))
-                throw new JsonParseException("Required field \"material\" does not exist on one or more elements.");
+                throw new JsonParseException("Required property \"material\" does not exist on one or more elements.");
             // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
             return (items.stream().map(Item::toItemStack).noneMatch(ItemStack::hasItemMeta))
                     ? new RecipeChoice.MaterialChoice(items.stream().map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
