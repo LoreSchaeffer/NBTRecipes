@@ -63,7 +63,7 @@ public final class DiscoverTriggerListener implements Listener {
                 // Making player immediately discover recipes with no criteria specified.
                 if (recipe.getDiscoverTrigger() == null)
                     Bukkit.getScheduler().callSyncMethod(plugin, () -> player.discoverRecipe(recipe.getKey()));
-                    // Otherwise, testing each choice individually.
+                // Otherwise, testing each choice individually.
                 else if (recipe.getDiscoverTrigger().getRequiredChoices() != null && !recipe.getDiscoverTrigger().getRequiredChoices().isEmpty()) {
                     // Iterating over contents of player's inventory.
                     for (final @Nullable ItemStack item : player.getInventory().getContents()) {
