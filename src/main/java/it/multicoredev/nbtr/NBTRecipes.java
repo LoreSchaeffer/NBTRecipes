@@ -164,47 +164,57 @@ public class NBTRecipes extends JavaPlugin {
         });
     }
 
+    // Returns NamespacedKey from configured namespace and relative path of specified file.
+    @SuppressWarnings("deprecation") // Deprecation suppressed; this method is unlikely to be removed in the future.
+    private @NotNull NamespacedKey getNamespacedKey(final @NotNull File file) throws IllegalArgumentException {
+        // Returning a new NamespacedKey object from namespace and relative path of specified file.
+        return new NamespacedKey(namespace, getKey(file));
+    }
+
     // Returns configured namespace or, in case it's invalid, lower-case plugin name.
-    private @NotNull String getNamespace() {
+    private @NotNull String getNamespace() throws IllegalArgumentException {
         // Returning a configured namespace, or in case it's unspecified, lower-case plugin name.
         if (config().namespace == null)
             return getName().toLowerCase(Locale.ROOT);
-        // Creating a Matcher with the configured namespace. Unfortunately there seems to be no method to create an "inverted" matcher.
-        final Matcher matcher = NAMESPACE_PATTERN.matcher(config().namespace);
-        // Creating a result StringBuilder, which will then be appended only with characters that matches the pattern.
-        final StringBuilder builder = new StringBuilder();
-        // Appending matching elements to the StringBuilder.
-        while (matcher.find())
-            builder.append(matcher.group());
+        // Getting a namespace with all non-matching characters ignored.
+        final String namespace = ignoreNonMatchingCharacters(config().namespace, NAMESPACE_PATTERN);
         // Throwing IllegalArgumentException if namespace turned out to be empty.
-        if (builder.isEmpty())
+        if (namespace.isEmpty())
             throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character.");
         // Returning the namespace.
-        return builder.toString();
+        return namespace;
     }
 
-    // Returns path in relation of recipes directory and specified file. This method also tries to translate some invalid characters.
-    private @NotNull String getKey(final @NotNull File file) {
+    // Returns path in relation between recipes directory and specified file. This method also tries to translate some invalid characters.
+    private @NotNull String getKey(final @NotNull File file) throws IllegalArgumentException {
         // Relativizing file path, converting to lower-case, and then applying replacements.
-        return recipesDir.toPath().relativize(file.toPath()).toString().toLowerCase(Locale.ROOT)
+        final String relativePath = recipesDir.toPath().relativize(file.toPath()).toString().toLowerCase(Locale.ROOT)
                 // Replacing spaces with underscores.
                 .replace(" ", "_")
                 // Replacing back-slashes with slashes. (for Windows)
                 .replace("\\", "/")
                 // Removing the '.json' file extension.
                 .replace(".json", "");
+        // Getting a namespace with all non-matching characters ignored.
+        final String key = ignoreNonMatchingCharacters(relativePath, KEY_PATTERN);
+        // Throwing IllegalArgumentException if key turned out to be empty.
+        if (key.isEmpty())
+            throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character.");
+        // Returning the key.
+        return key;
     }
 
-    // Returns NamespacedKey from configured namespace and relative path of specified file.
-    @SuppressWarnings("deprecation") // Deprecation suppressed; this method is unlikely to be removed in the future.
-    private @NotNull NamespacedKey getNamespacedKey(final @NotNull File file) {
-        // Constructing a key from relative path between recipes directory and specified file.
-        final String key = getKey(file);
-        // Throwing IllegalArgumentException if relative path turned out to be an invalid key for the namespace.
-        if (!KEY_PATTERN.matcher(key).matches())
-            throw new IllegalArgumentException("Key created from the relative path cannot be used to create a namespaced key: " + key);
-        // Returning a new NamespacedKey object from namespace and relative path of specified file.
-        return new NamespacedKey(namespace, key);
+    // Returns only matching characters within a Pattern. It exists because there seems to be no method to create an "inverted" matcher.
+    private static @NotNull String ignoreNonMatchingCharacters(final @NotNull CharSequence charSequence, final @NotNull Pattern pattern) {
+        // Creating a Matcher with the specified CharSequence.
+        final Matcher matcher = pattern.matcher(charSequence);
+        // Creating a result StringBuilder, which will then be appended only with characters that matches the pattern.
+        final StringBuilder builder = new StringBuilder();
+        // Appending matching elements to the StringBuilder.
+        while (matcher.find())
+            builder.append(matcher.group());
+        // Returning the result.
+        return builder.toString();
     }
 
 }
