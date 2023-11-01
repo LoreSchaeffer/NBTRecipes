@@ -12,12 +12,15 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * BSD 3-Clause License
@@ -55,13 +58,15 @@ public class NBTRecipes extends JavaPlugin {
             new TypeAdapter(Material.class, new MaterialAdapter()),
             new TypeAdapter(RecipeChoice.class, new RecipeChoiceAdapter())
     );
-    private static final String ALLOWED_NAMESPACE_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789/_-";
     private Config config;
     private final File recipesDir = new File(getDataFolder(), "recipes");
     private final List<RecipeWrapper> recipes = new ArrayList<>();
     private final List<NamespacedKey> registeredRecipes = new ArrayList<>();
     private final Metrics metrics = new Metrics(this, 17319);
     private String namespace;
+
+    private static final Pattern NAMESPACE_PATTERN = Pattern.compile("[a-z0-9._-]+$");
+    private static final Pattern KEY_PATTERN = Pattern.compile("[a-z0-9/._-]+$");
 
     //TODO Add recipe editor GUI ?
 
@@ -141,18 +146,16 @@ public class NBTRecipes extends JavaPlugin {
         }
     }
 
-    private String getNamespace() {
-        String namespace = config().namespace;
-        if (namespace == null || namespace.trim().isEmpty()) namespace = getName().toLowerCase(Locale.ROOT);
-        namespace = namespace.replaceAll("[^" + ALLOWED_NAMESPACE_CHARS + "]", "");
-
-        if (namespace.trim().isEmpty()) throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character");
-        return namespace;
-    }
-
     private void registerRecipes() {
         recipes.forEach(recipe -> {
             try {
+                // Support for overriding vanilla commands. Config namespace must be set to "minecraft" for that to work.
+                if (recipe.getKey().getNamespace().equals("minecraft") && getServer().getRecipe(recipe.getKey()) != null) {
+                    // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
+                    getServer().removeRecipe(recipe.getKey());
+                    // Sending information to the console.
+                    Chat.info("&eRecipe '" + recipe.getKey().toString() + "' is now overriding vanilla recipe with the same key.");
+                }
                 getServer().addRecipe(recipe.toBukkit());
                 registeredRecipes.add(recipe.getKey());
             } catch (Exception e) {
@@ -161,30 +164,57 @@ public class NBTRecipes extends JavaPlugin {
         });
     }
 
-    private String getRelativePath(File file) throws IllegalArgumentException {
-        try {
-            String parentPath = recipesDir.getPath().replace("\\", "/");
-            String filePath = file.getParentFile().getPath().replace("\\", "/");
-
-            if (!filePath.startsWith(parentPath)) throw new IllegalArgumentException("File must be inside the scripts root directory");
-
-            String relativePath = filePath.substring(parentPath.length());
-            if (relativePath.startsWith("/")) relativePath = relativePath.substring(1);
-
-            return relativePath;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e);
-        }
+    // Returns NamespacedKey from configured namespace and relative path of specified file.
+    @SuppressWarnings("deprecation") // Deprecation suppressed; this method is unlikely to be removed in the future.
+    private @NotNull NamespacedKey getNamespacedKey(final @NotNull File file) throws IllegalArgumentException {
+        // Returning a new NamespacedKey object from namespace and relative path of specified file.
+        return new NamespacedKey(namespace, getKey(file));
     }
 
-    @SuppressWarnings("deprecation")
-    private NamespacedKey getNamespacedKey(File file) {
-        String key = getRelativePath(file) + "/" + file.getName().toLowerCase(Locale.ROOT).replace(".json", "");
-        if (key.contains(" ")) key = key.replace(" ", "_");
-        key = key.replaceAll("[^" + ALLOWED_NAMESPACE_CHARS + "]", "");
-
-        if (key.trim().isEmpty()) throw new IllegalArgumentException("File name must contain at least one alphanumeric character");
-
-        return new NamespacedKey(namespace, key);
+    // Returns configured namespace or, in case it's invalid, lower-case plugin name.
+    private @NotNull String getNamespace() throws IllegalArgumentException {
+        // Returning a configured namespace, or in case it's unspecified, lower-case plugin name.
+        if (config().namespace == null)
+            return getName().toLowerCase(Locale.ROOT);
+        // Getting a namespace with all non-matching characters ignored.
+        final String namespace = ignoreNonMatchingCharacters(config().namespace, NAMESPACE_PATTERN);
+        // Throwing IllegalArgumentException if namespace turned out to be empty.
+        if (namespace.isEmpty())
+            throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character.");
+        // Returning the namespace.
+        return namespace;
     }
+
+    // Returns path in relation between recipes directory and specified file. This method also tries to translate some invalid characters.
+    private @NotNull String getKey(final @NotNull File file) throws IllegalArgumentException {
+        // Relativizing file path, converting to lower-case, and then applying replacements.
+        final String relativePath = recipesDir.toPath().relativize(file.toPath()).toString().toLowerCase(Locale.ROOT)
+                // Replacing spaces with underscores.
+                .replace(" ", "_")
+                // Replacing back-slashes with slashes. (for Windows)
+                .replace("\\", "/")
+                // Removing the '.json' file extension.
+                .replace(".json", "");
+        // Getting a namespace with all non-matching characters ignored.
+        final String key = ignoreNonMatchingCharacters(relativePath, KEY_PATTERN);
+        // Throwing IllegalArgumentException if key turned out to be empty.
+        if (key.isEmpty())
+            throw new IllegalArgumentException("Namespace must contain at least one alphanumeric character.");
+        // Returning the key.
+        return key;
+    }
+
+    // Returns only matching characters within a Pattern. It exists because there seems to be no method to create an "inverted" matcher.
+    private static @NotNull String ignoreNonMatchingCharacters(final @NotNull CharSequence charSequence, final @NotNull Pattern pattern) {
+        // Creating a Matcher with the specified CharSequence.
+        final Matcher matcher = pattern.matcher(charSequence);
+        // Creating a result StringBuilder, which will then be appended only with characters that matches the pattern.
+        final StringBuilder builder = new StringBuilder();
+        // Appending matching elements to the StringBuilder.
+        while (matcher.find())
+            builder.append(matcher.group());
+        // Returning the result.
+        return builder.toString();
+    }
+
 }
