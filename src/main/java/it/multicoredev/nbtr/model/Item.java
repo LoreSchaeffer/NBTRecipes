@@ -2,7 +2,8 @@ package it.multicoredev.nbtr.model;
 
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import it.multicoredev.nbtr.Chat;
+import it.multicoredev.mbcore.spigot.Text;
+import it.multicoredev.nbtr.utils.VersionUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -104,7 +105,8 @@ public class Item {
         return nbt;
     }
 
-    public ItemStack toItemStack() {
+    @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. These methods are called only on Spigot.
+    public ItemStack toItemStack() throws IllegalArgumentException {
         ItemStack item = new ItemStack(material);
 
         if (amount != null && amount > 0) {
@@ -115,8 +117,17 @@ public class Item {
         if (name != null || (lore != null && !lore.isEmpty())) {
             ItemMeta meta = item.getItemMeta();
             if (meta != null) {
-                if (name != null) meta.setDisplayName(Chat.getTranslated(name));
-                if (lore != null && !lore.isEmpty()) meta.setLore(Chat.getTranslated(lore));
+                // Setting item display name.
+                if (name != null)
+                    if (VersionUtils.isPaper)
+                        meta.displayName(Text.deserialize(name));
+                    else meta.setDisplayName(Text.toLegacyText(name));
+                // Setting item lore.
+                if (lore != null)
+                    if (VersionUtils.isPaper)
+                        meta.lore(Text.deserialize(lore));
+                    else meta.setLore(Text.toLegacyText(lore));
+                // Updating item meta.
                 item.setItemMeta(meta);
             }
         }
@@ -127,8 +138,8 @@ public class Item {
             try {
                 nbti.mergeCompound(new NBTContainer(nbt));
                 item = nbti.getItem();
-            } catch (Exception ignored) {
-                Chat.warning("Invalid NBT tag: " + nbt);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
             }
         }
 

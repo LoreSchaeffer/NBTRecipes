@@ -1,5 +1,6 @@
 package it.multicoredev.nbtr;
 
+import it.multicoredev.mbcore.spigot.Text;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
@@ -72,6 +73,9 @@ public class NBTRecipes extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Creating new instance of Text utility.
+        Text.create(this);
+        // Reloading plugin configuration.
         try {
             if (!getDataFolder().exists() || !getDataFolder().isDirectory()) {
                 if (!getDataFolder().mkdirs()) throw new IOException("Cannot create plugin folder");
@@ -87,16 +91,16 @@ public class NBTRecipes extends JavaPlugin {
             onDisable();
             return;
         }
-
+        // Getting the configured plugin namespace that will be used for recipe registration.
         namespace = getNamespace();
-
+        // Loading recipes.
         loadRecipes(recipesDir);
-        Chat.info("&bLoaded " + recipes.size() + " recipes");
-
+        getLogger().info("Loaded " + recipes.size() + " recipes.");
+        // Registering recipes.
         registerRecipes();
-
+        // Registering events.
         getServer().getPluginManager().registerEvents(new DiscoverTriggerListener(this), this);
-
+        // Registering command(s).
         NBTRCommand cmd = new NBTRCommand(this);
         getCommand("nbtr").setExecutor(cmd);
         getCommand("nbtr").setTabCompleter(cmd);
@@ -104,11 +108,14 @@ public class NBTRecipes extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Unregistering and clearing recipes.
         registeredRecipes.forEach(getServer()::removeRecipe);
         registeredRecipes.clear();
         recipes.clear();
-
+        // Unregistering events.
         HandlerList.unregisterAll(this);
+        // Destroying Text utility.
+        Text.destroy();
     }
 
     public Config config() {
@@ -133,14 +140,15 @@ public class NBTRecipes extends JavaPlugin {
                     RecipeWrapper recipe = GSON.load(file, RecipeWrapper.class);
                     if (recipe == null) continue;
                     if (!recipe.isValid()) {
-                        Chat.warning("&eRecipe " + file.getName() + " is not valid");
+                        getLogger().warning("Recipe \"" + file.getName() + "\" is invalid.");
                         continue;
                     }
 
                     recipe.init(getNamespacedKey(file));
                     recipes.add(recipe);
                 } catch (Exception e) {
-                    Chat.warning("&eLoading of recipe " + file.getName() + " failed with error: " + e.getMessage());
+                    getLogger().severe("Loading of recipe \"" + file.getName() + "\" failed with error: ");
+                    getLogger().severe("  " + e.getMessage());
                 }
             }
         }
@@ -154,18 +162,17 @@ public class NBTRecipes extends JavaPlugin {
                     // Removing the original recipe. It won't be added back until the server restart or "minecraft:reload" command is executed.
                     getServer().removeRecipe(recipe.getKey());
                     // Sending information to the console.
-                    Chat.info("&eRecipe '" + recipe.getKey().toString() + "' is now overriding vanilla recipe with the same key.");
+                    getLogger().warning("Recipe \"" + recipe.getKey().toString() + "\" is now overriding vanilla recipe with the same key.");
                 }
                 getServer().addRecipe(recipe.toBukkit());
                 registeredRecipes.add(recipe.getKey());
             } catch (Exception e) {
-                Chat.warning("&eRecipe '" + recipe.getKey().toString() + "' registration failed: " + e.getMessage());
+                getLogger().severe("Recipe '" + recipe.getKey().toString() + "' registration failed: " + e.getMessage());
             }
         });
     }
 
     // Returns NamespacedKey from configured namespace and relative path of specified file.
-    @SuppressWarnings("deprecation") // Deprecation suppressed; this method is unlikely to be removed in the future.
     private @NotNull NamespacedKey getNamespacedKey(final @NotNull File file) throws IllegalArgumentException {
         // Returning a new NamespacedKey object from namespace and relative path of specified file.
         return new NamespacedKey(namespace, getKey(file));

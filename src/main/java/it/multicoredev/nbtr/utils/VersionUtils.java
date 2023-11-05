@@ -35,6 +35,8 @@ import org.bukkit.Bukkit;
  */
 public class VersionUtils {
 
+    public static final boolean isPaper = hasClass("com.destroystokyo.paper.PaperConfig") || hasClass("io.papermc.paper.configuration.Configuration");
+
     public static int getVersion() {
         String rawVersion = Bukkit.getBukkitVersion();
         if (rawVersion.contains("-")) rawVersion = rawVersion.substring(0, rawVersion.indexOf("-"));
@@ -43,4 +45,14 @@ public class VersionUtils {
         String[] parts = rawVersion.split("\\.");
         return Integer.parseInt(parts[1]);
     }
+
+    public static boolean hasClass(final String className) {
+        try {
+            Class.forName(className);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
 }
