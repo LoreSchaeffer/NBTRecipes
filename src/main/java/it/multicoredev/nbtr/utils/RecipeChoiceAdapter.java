@@ -61,9 +61,13 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
                 if (!item.isValid())
                     throw new JsonParseException("Required property \"material\" does not exist.");
                 // Returning MaterialChoice if metadata is empty, or ExactChoice otherwise.
-                return (!item.toItemStack().hasItemMeta())
-                        ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
-                        : new RecipeChoice.ExactChoice(item.toItemStack());
+                try {
+                    return (!item.toItemStack().hasItemMeta())
+                            ? new RecipeChoice.MaterialChoice(item.toItemStack().getType())
+                            : new RecipeChoice.ExactChoice(item.toItemStack());
+                } catch (final IllegalArgumentException e) {
+                    throw new JsonParseException("An error occurred while trying to convert to ItemStack.", e);
+                }
             } else if (json.getAsJsonObject().get("tag") != null) {
                 String key = json.getAsJsonObject().get("tag").getAsString();
                 // Stripping '#' char from the beginning, if present.
@@ -89,9 +93,13 @@ public final class RecipeChoiceAdapter implements JsonDeserializer<RecipeChoice>
             if (!items.stream().allMatch(Item::isValid))
                 throw new JsonParseException("Required property \"material\" does not exist on one or more elements.");
             // Returning MaterialChoice if metadata of all items is empty, or ExactChoice otherwise.
-            return (items.stream().map(Item::toItemStack).noneMatch(ItemStack::hasItemMeta))
-                    ? new RecipeChoice.MaterialChoice(items.stream().map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
-                    : new RecipeChoice.ExactChoice(items.stream().map(Item::toItemStack).collect(Collectors.toList()));
+            try {
+                return (items.stream().map(Item::toItemStack).noneMatch(ItemStack::hasItemMeta))
+                        ? new RecipeChoice.MaterialChoice(items.stream().map(Item::toItemStack).map(ItemStack::getType).collect(Collectors.toList()))
+                        : new RecipeChoice.ExactChoice(items.stream().map(Item::toItemStack).collect(Collectors.toList()));
+            } catch (final IllegalArgumentException e) {
+                throw new JsonParseException("An error occurred while trying to convert to ItemStack.", e);
+            }
         }
         // Throwing exception for unexpected input.
         throw new JsonParseException("Expected JsonObject or JsonArray but found " + json.getClass().getSimpleName() + ".");

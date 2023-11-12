@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import it.multicoredev.mbcore.spigot.Text;
 import it.multicoredev.nbtr.utils.VersionUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -105,44 +106,42 @@ public class Item {
         return nbt;
     }
 
-    @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. These methods are called only on Spigot.
+    @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. It's Paper that deprecates ChatColor methods and they're called only when running Spigot.
     public ItemStack toItemStack() throws IllegalArgumentException {
         ItemStack item = new ItemStack(material);
-
-        if (amount != null && amount > 0) {
-            if (amount > material.getMaxStackSize()) item.setAmount(material.getMaxStackSize());
-            else item.setAmount(amount);
+        // Setting amount if specified and greater than 0.
+        if (amount != null && amount > 0)
+            item.setAmount(Math.min(material.getMaxStackSize(), amount));
+        // Checking whether item has item meta.
+        if (item.getItemMeta() != null) {
+            final ItemMeta meta = item.getItemMeta();
+            // Setting name if specified.
+            if (name != null)
+                if (VersionUtils.isPaper)
+                    meta.displayName(Text.deserialize(Text.toMiniMessage(name)));
+                else meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', Text.toLegacyText(name)));
+            // Setting lore if specified.
+            if (lore != null)
+                if (VersionUtils.isPaper)
+                    meta.lore(lore.stream().map(line -> Text.deserialize(Text.toMiniMessage(name))).toList());
+                else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', Text.toLegacyText(line))).toList());
+            // Updating item meta.
+            item.setItemMeta(meta);
         }
-
-        if (name != null || (lore != null && !lore.isEmpty())) {
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                // Setting item display name.
-                if (name != null)
-                    if (VersionUtils.isPaper)
-                        meta.displayName(Text.deserialize(name));
-                    else meta.setDisplayName(Text.toLegacyText(name));
-                // Setting item lore.
-                if (lore != null)
-                    if (VersionUtils.isPaper)
-                        meta.lore(Text.deserialize(lore));
-                    else meta.setLore(Text.toLegacyText(lore));
-                // Updating item meta.
-                item.setItemMeta(meta);
-            }
-        }
-
+        // Setting additional NBT if specified.
         if (nbt != null && !nbt.trim().isEmpty()) {
-            NBTItem nbti = new NBTItem(item);
-
+            final NBTItem nbti = new NBTItem(item);
             try {
+                // Trying to merge current NBT with the one specified.
                 nbti.mergeCompound(new NBTContainer(nbt));
+                // Replacing item with one created from merging NBT.
                 item = nbti.getItem();
             } catch (Exception e) {
+                // Re-throwing as IllegalArgumentException to be handled somewhere else.
                 throw new IllegalArgumentException(e);
             }
         }
-
+        // Finally, retuning the item.
         return item;
     }
 

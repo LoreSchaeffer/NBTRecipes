@@ -147,7 +147,7 @@ public class NBTRecipes extends JavaPlugin {
                     recipe.init(getNamespacedKey(file));
                     recipes.add(recipe);
                 } catch (Exception e) {
-                    getLogger().severe("Loading of recipe \"" + file.getName() + "\" failed with error: ");
+                    getLogger().severe("Loading of recipe \"" + file.getName() + "\" failed with error: (" + e.getClass().getSimpleName() + ")");
                     getLogger().severe("  " + e.getMessage());
                 }
             }
@@ -167,7 +167,8 @@ public class NBTRecipes extends JavaPlugin {
                 getServer().addRecipe(recipe.toBukkit());
                 registeredRecipes.add(recipe.getKey());
             } catch (Exception e) {
-                getLogger().severe("Recipe '" + recipe.getKey().toString() + "' registration failed: " + e.getMessage());
+                getLogger().severe("Registration of recipe \"" + recipe.getKey() + "\" failed with error: (" + e.getClass().getSimpleName() + ")");
+                getLogger().severe("  " + e.getMessage());
             }
         });
     }
