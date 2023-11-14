@@ -123,7 +123,7 @@ public class Item {
             // Setting lore if specified.
             if (lore != null)
                 if (VersionUtils.isPaper)
-                    meta.lore(lore.stream().map(line -> Text.deserialize(Text.toMiniMessage(name))).toList());
+                    meta.lore(lore.stream().map(line -> Text.deserialize(Text.toMiniMessage(line))).toList());
                 else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', Text.toLegacyText(line))).toList());
             // Updating item meta.
             item.setItemMeta(meta);
