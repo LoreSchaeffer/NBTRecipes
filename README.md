@@ -19,6 +19,9 @@ To add a new recipe just create a text file with the `.json` extension and edit 
 In the config you can change the namespace of your recipes and all the messages of the plugin.
 The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
+Setting `parse_minimessage_in_name_and_lore` to `true` allows [MiniMessage](https://docs.advntr.dev/minimessage/format) to be used within `name` and `lore` properties for item definitions.
+Due to Bukkit API limitations this works only when running [Paper](https://github.com/PaperMC/Paper).
+
 ### 1.2. Commands
 * `/nbtrecipes reload` - Reloads the recipes and the config file.
   * `nbtr.command` Permission needed to use the command.
@@ -27,7 +30,7 @@ The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`,
 
 <br />
 
-## Components
+## Plugin Components
 Description of recipe components and their capabilities.
 
 ### 2.1. Item

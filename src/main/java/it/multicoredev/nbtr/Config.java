@@ -36,6 +36,8 @@ import it.multicoredev.mclib.json.JsonConfig;
  */
 public class Config extends JsonConfig {
     public String namespace;
+    @SerializedName("parse_minimessage_in_name_and_lore")
+    public Boolean parseMiniMessageInNameAndLore;
     @SerializedName("insufficient_permissions")
     public String insufficientPerms;
     @SerializedName("incorrect_usage")
@@ -49,6 +51,7 @@ public class Config extends JsonConfig {
     @Override
     public Config init() {
         if (namespace == null) namespace = "nbtrecipes";
+        if (parseMiniMessageInNameAndLore == null) parseMiniMessageInNameAndLore = false;
         if (insufficientPerms == null) insufficientPerms = "<red>Insufficient permissions!";
         if (incorrectUsage == null) incorrectUsage = "<red>Incorrect usage!";
         if (reloaded == null) reloaded = "<green>Plugin has been reloaded.";
