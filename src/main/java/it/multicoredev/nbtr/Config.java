@@ -56,7 +56,7 @@ public class Config extends JsonConfig {
         if (incorrectUsage == null) incorrectUsage = "<red>Incorrect usage!";
         if (reloaded == null) reloaded = "<green>Plugin has been reloaded.";
         if (recipesList == null) recipesList = "<gold>There are <yellow>{amount} <gold>recipes loaded:";
-        if (recipesListItem == null) recipesListItem = "  <gold>{recipe}";
+        if (recipesListItem == null) recipesListItem = "  <yellow>{recipe}";
         return this;
     }
 }
