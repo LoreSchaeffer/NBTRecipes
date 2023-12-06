@@ -52,12 +52,12 @@ public class NBTRCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("nbtr.command")) {
-            Text.get().send(plugin.config().insufficientPerms, sender);
+            Text.get().send(Text.toMiniMessage(plugin.config().insufficientPerms), sender);
             return true;
         }
 
         if (args.length == 0) {
-            Text.get().send(plugin.config().incorrectUsage, sender);
+            Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
             return true;
         }
 
@@ -68,13 +68,13 @@ public class NBTRCommand implements CommandExecutor, TabCompleter {
                 // Enabling the plugin again.
                 plugin.onEnable();
                 // Sending message to the sender.
-                Text.get().send(plugin.config().reloaded, sender);
+                Text.get().send(Text.toMiniMessage(plugin.config().reloaded), sender);
             }
             case "list" -> {
-                Text.get().send(plugin.config().recipesList.replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
-                plugin.getRecipes().forEach(recipe -> Text.get().send(plugin.config().recipesListItem.replace("{recipe}", recipe.getKey().toString()), sender));
+                Text.get().send(Text.toMiniMessage(plugin.config().recipesList).replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
+                plugin.getRecipes().forEach(recipe -> Text.get().send(Text.toMiniMessage(plugin.config().recipesListItem).replace("{recipe}", recipe.getKey().toString()), sender));
             }
-            default -> Text.get().send(plugin.config().incorrectUsage, sender);
+            default -> Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
         }
 
         return true;
