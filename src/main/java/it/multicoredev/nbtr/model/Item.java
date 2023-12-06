@@ -3,8 +3,8 @@ package it.multicoredev.nbtr.model;
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
 import it.multicoredev.mbcore.spigot.Text;
+import it.multicoredev.nbtr.utils.ChatFormat;
 import it.multicoredev.nbtr.utils.VersionUtils;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -50,17 +50,6 @@ public class Item {
     private List<String> lore;
     private String nbt;
 
-    // Whether MiniMessage support is considered to be enabled.
-    private static boolean canUseMiniMessage = false;
-
-    /**
-     * Sets whether parsing {@link MiniMessage} tags should be enabled for item name and lore.
-     *
-     * @apiNote Takes no effect when called on a Spigot server.
-     */
-    public static void setMiniMessageEnabled(final boolean state) {
-        if (VersionUtils.isPaper) canUseMiniMessage = state;
-    }
 
     public Item(Material material, Integer amount, String name, List<String> lore, String nbt) {
         this.material = material;
@@ -130,14 +119,14 @@ public class Item {
             final ItemMeta meta = item.getItemMeta();
             // Setting name if specified.
             if (name != null)
-                if (canUseMiniMessage)
-                    meta.displayName(Text.deserialize(Text.toMiniMessage(name)));
-                else meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', Text.toLegacyText(name)));
+                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(name))
+                    meta.displayName(Text.deserialize(name));
+                else meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
             // Setting lore if specified.
             if (lore != null)
-                if (canUseMiniMessage)
-                    meta.lore(lore.stream().map(line -> Text.deserialize(Text.toMiniMessage(line))).toList());
-                else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', Text.toLegacyText(line))).toList());
+                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(lore))
+                    meta.lore(lore.stream().map(Text::deserialize).toList());
+                else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).toList());
             // Updating item meta.
             item.setItemMeta(meta);
         }

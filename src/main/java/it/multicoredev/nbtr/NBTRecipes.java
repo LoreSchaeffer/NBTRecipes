@@ -4,11 +4,9 @@ import it.multicoredev.mbcore.spigot.Text;
 import it.multicoredev.mclib.json.GsonHelper;
 import it.multicoredev.mclib.json.TypeAdapter;
 import it.multicoredev.nbtr.listeners.DiscoverTriggerListener;
-import it.multicoredev.nbtr.model.Item;
 import it.multicoredev.nbtr.model.recipes.RecipeWrapper;
 import it.multicoredev.nbtr.utils.MaterialAdapter;
 import it.multicoredev.nbtr.utils.RecipeChoiceAdapter;
-import it.multicoredev.nbtr.utils.VersionUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -92,16 +90,6 @@ public class NBTRecipes extends JavaPlugin {
             e.printStackTrace();
             onDisable();
             return;
-        }
-        // Passing configuration value to the Item utility.
-        if (config.parseMiniMessageInNameAndLore && VersionUtils.isPaper) {
-            Item.setMiniMessageEnabled(true);
-            // Logging console warning.
-            getLogger().warning("MiniMessage integration has been enabled. Please note that item definitions with legacy formatting are likely to cause issues.");
-        } else if (!VersionUtils.isPaper) {
-            Item.setMiniMessageEnabled(false);
-            // Logging console warning.
-            getLogger().severe("MiniMessage integration has been enabled but your environment does not support it. You can find more details in the plugin documentation.");
         }
         // Getting the configured plugin namespace that will be used for recipe registration.
         namespace = getNamespace();

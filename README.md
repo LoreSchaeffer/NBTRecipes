@@ -4,9 +4,9 @@
 <a href="https://hangar.papermc.io/LoreSchaeffer/NBTRecipes"><img alt="hangar" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/hangar_vector.svg"></a>
 <a href="https://legacy.curseforge.com/minecraft/bukkit-plugins/nbtrecipes"><img alt="curseforge" height="44" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg"></a>
 
-Plugin designed to simplify creation of custom recipes, without the need writing any code or touching datapacks.
+Plugin designed to simplify creation of custom recipes, without the need writing any code or touching data-packs.
 You can attach common metadata (amount, name, lore) as well as NBT tags to items processed by the recipes.
-Format is very similar to the one used by datapacks.
+Format is very similar to the one used by data-packs.
 
 <br />
 
@@ -19,8 +19,7 @@ To add a new recipe just create a text file with the `.json` extension and edit 
 In the config you can change the namespace of your recipes and all the messages of the plugin.
 The namespace can only contain the following characters: `a-z`, `0-9`, `_`, `-`, `/`.
 
-Setting `parse_minimessage_in_name_and_lore` to `true` allows [MiniMessage](https://docs.advntr.dev/minimessage/format) to be used within `name` and `lore` properties for item definitions.
-Due to Bukkit API limitations this works only when running [Paper](https://github.com/PaperMC/Paper).
+Legacy formatting (`&`, `§`) is deprecated and planned to be removed in the future. Please use [MiniMessage](https://docs.advntr.dev/minimessage/format) instead.
 
 ### 1.2. Commands
 * `/nbtrecipes reload` - Reloads the recipes and the config file.
