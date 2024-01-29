@@ -1,5 +1,6 @@
 package it.multicoredev.nbtr;
 
+import it.multicoredev.mbcore.spigot.Text;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -51,36 +52,36 @@ public class NBTRCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("nbtr.command")) {
-            Chat.send(plugin.config().insufficientPerms, sender);
+            Text.get().send(Text.toMiniMessage(plugin.config().insufficientPerms), sender);
             return true;
         }
 
         if (args.length == 0) {
-            Chat.send(plugin.config().incorrectUsage, sender);
+            Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
             return true;
         }
 
         switch (args[0].toLowerCase(Locale.ROOT)) {
-            case "reload":
+            case "reload" -> {
+                // Disabling the plugin.
                 plugin.onDisable();
+                // Enabling the plugin again.
                 plugin.onEnable();
-                Chat.send(plugin.config().reloaded, sender);
-                break;
-            case "list":
-                Chat.send(plugin.config().recipesList.replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
-                plugin.getRecipes().forEach(recipe -> Chat.send(plugin.config().recipesListItem.replace("{recipe}", recipe.getKey().toString()), sender));
-                break;
-            default:
-                Chat.send(plugin.config().incorrectUsage, sender);
-                break;
+                // Sending message to the sender.
+                Text.get().send(Text.toMiniMessage(plugin.config().reloaded), sender);
+            }
+            case "list" -> {
+                Text.get().send(Text.toMiniMessage(plugin.config().recipesList).replace("{amount}", String.valueOf(plugin.getRecipes().size())), sender);
+                plugin.getRecipes().forEach(recipe -> Text.get().send(Text.toMiniMessage(plugin.config().recipesListItem).replace("{recipe}", recipe.getKey().toString()), sender));
+            }
+            default -> Text.get().send(Text.toMiniMessage(plugin.config().incorrectUsage), sender);
         }
 
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("nbtr.command")) return null;
         if (args.length == 1) return TabCompleterUtil.getCompletions(args[0], "reload", "list");
 

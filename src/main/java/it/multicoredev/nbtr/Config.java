@@ -49,11 +49,11 @@ public class Config extends JsonConfig {
     @Override
     public Config init() {
         if (namespace == null) namespace = "nbtrecipes";
-        if (insufficientPerms == null) insufficientPerms = "&cInsufficient permissions!";
-        if (incorrectUsage == null) incorrectUsage = "&cIncorrect usage!";
-        if (reloaded == null) reloaded = "&6Plugin reloaded";
-        if (recipesList == null) recipesList = "&6There are &e{amount} &6recipes loaded";
-        if (recipesListItem == null) recipesListItem = "&6&l- &e{recipe}";
+        if (insufficientPerms == null) insufficientPerms = "<red>Insufficient permissions!";
+        if (incorrectUsage == null) incorrectUsage = "<red>Incorrect usage!";
+        if (reloaded == null) reloaded = "<green>Plugin has been reloaded.";
+        if (recipesList == null) recipesList = "<gold>There are <yellow>{amount} <gold>recipes loaded:";
+        if (recipesListItem == null) recipesListItem = "  <yellow>{recipe}";
         return this;
     }
 }

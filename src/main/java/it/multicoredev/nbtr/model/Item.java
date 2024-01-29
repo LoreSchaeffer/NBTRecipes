@@ -2,7 +2,10 @@ package it.multicoredev.nbtr.model;
 
 import de.tr7zw.changeme.nbtapi.NBTContainer;
 import de.tr7zw.changeme.nbtapi.NBTItem;
-import it.multicoredev.nbtr.Chat;
+import it.multicoredev.mbcore.spigot.Text;
+import it.multicoredev.nbtr.utils.ChatFormat;
+import it.multicoredev.nbtr.utils.VersionUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -46,6 +49,7 @@ public class Item {
     private String name;
     private List<String> lore;
     private String nbt;
+
 
     public Item(Material material, Integer amount, String name, List<String> lore, String nbt) {
         this.material = material;
@@ -104,34 +108,42 @@ public class Item {
         return nbt;
     }
 
-    public ItemStack toItemStack() {
+    @SuppressWarnings("deprecation") // Suppressing @Deprecated warnings. It's Paper that deprecates ChatColor methods and they're called only when running Spigot.
+    public ItemStack toItemStack() throws IllegalArgumentException {
         ItemStack item = new ItemStack(material);
-
-        if (amount != null && amount > 0) {
-            if (amount > material.getMaxStackSize()) item.setAmount(material.getMaxStackSize());
-            else item.setAmount(amount);
+        // Setting amount if specified and greater than 0.
+        if (amount != null && amount > 0)
+            item.setAmount(Math.min(material.getMaxStackSize(), amount));
+        // Checking whether item has item meta.
+        if (item.getItemMeta() != null) {
+            final ItemMeta meta = item.getItemMeta();
+            // Setting name if specified.
+            if (name != null)
+                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(name))
+                    meta.displayName(Text.deserialize(name));
+                else meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
+            // Setting lore if specified.
+            if (lore != null)
+                if (VersionUtils.isPaper && ChatFormat.containsMiniMessage(lore))
+                    meta.lore(lore.stream().map(Text::deserialize).toList());
+                else meta.setLore(lore.stream().map(line -> ChatColor.translateAlternateColorCodes('&', line)).toList());
+            // Updating item meta.
+            item.setItemMeta(meta);
         }
-
-        if (name != null || (lore != null && !lore.isEmpty())) {
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                if (name != null) meta.setDisplayName(Chat.getTranslated(name));
-                if (lore != null && !lore.isEmpty()) meta.setLore(Chat.getTranslated(lore));
-                item.setItemMeta(meta);
-            }
-        }
-
+        // Setting additional NBT if specified.
         if (nbt != null && !nbt.trim().isEmpty()) {
-            NBTItem nbti = new NBTItem(item);
-
+            final NBTItem nbti = new NBTItem(item);
             try {
+                // Trying to merge current NBT with the one specified.
                 nbti.mergeCompound(new NBTContainer(nbt));
+                // Replacing item with one created from merging NBT.
                 item = nbti.getItem();
-            } catch (Exception ignored) {
-                Chat.warning("Invalid NBT tag: " + nbt);
+            } catch (Exception e) {
+                // Re-throwing as IllegalArgumentException to be handled somewhere else.
+                throw new IllegalArgumentException(e);
             }
         }
-
+        // Finally, retuning the item.
         return item;
     }
 
