@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  build-and-realease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Prepare Dependencies
+        run: |
+          git clone https://github.com/MultiCoreNetwork/MCLib
+          cd MCLib
+          mvn install
+          cd ..
+          git clone https://github.com/MultiCoreNetwork/MBCore
+          cd MBCore
+          mvn install
+          cd ..
+      - name: Package
+        run: |
+          mvn package
+      - name: Prepare variables
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: ${{ steps.vars.outputs.sha_short }}
+          prerelease: false
+          title: "Snapshot (v.${{ steps.vars.outputs.sha_short }})"
+          files: |
+            target/NBTRecipes.jar
