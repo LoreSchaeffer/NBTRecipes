@@ -84,7 +84,8 @@ public abstract class RecipeWrapper {
         BLASTING("blasting", BlastingRecipeWrapper.class),
         SMOKING("smoking", SmokingRecipeWrapper.class),
         CAMPFIRE("campfire_cooking", CampfireRecipeWrapper.class),
-        SMITHING_RECIPE("smithing", SmithingRecipeWrapper.class);
+        SMITHING_RECIPE("smithing", SmithingRecipeWrapper.class),
+        STONECUTTING_RECIPE("stonecutting", StonecuttingRecipeWrapper.class);
 
         private final String type;
         private final Class<? extends RecipeWrapper> clazz;

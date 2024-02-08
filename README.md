@@ -228,6 +228,31 @@ Metadata (name, lore, nbt) is not supported for result items, as it's copied dir
 
 </details>
 
+### 3.5. Stonecutting Recipe
+Stonecutting recipe applies to stonecutter.
+
+<details>
+  <summary><b>JSON EXAMPLE</b></summary>
+
+```json5
+{
+  "type": "stonecutting",
+  // Recipe input. Exactly one recipe choice, which can be an array with multiple elements.
+  "input": { "material": "oak_planks" },
+  // Recipe result.
+  "result": { "material": "oak_stairs" },
+  // Recipe discover trigger. Optional.
+  "discover": {
+    // Items that discovers the recipe. List of recipe choices. Each choice can be an array with multiple elements.
+    "items": [
+      { "material": "oak_planks" }
+    ]
+  }
+}
+```
+
+</details>
+
 <br />
 
 ## Contributing
