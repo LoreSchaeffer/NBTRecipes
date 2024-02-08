@@ -32,15 +32,15 @@ jobs:
       - name: Package
         run: |
           mvn package
-      - name: Prepare variables
-        id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Get Project Version
+        id: project_version
+        run: echo "::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: ${{ steps.vars.outputs.sha_short }}
           prerelease: false
-          title: "Snapshot (v.${{ steps.vars.outputs.sha_short }})"
+          title: "Release ${{ steps.project_version.outputs.version }}"
           files: |
             target/NBTRecipes.jar
